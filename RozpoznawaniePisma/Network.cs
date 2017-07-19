@@ -29,34 +29,15 @@ namespace RozpoznawaniePisma
 
         public double[] Errors;
 
-        private int currentIteration;
+        public int currentIteration;
         public int maximumIteration;
 
-        public Network(int inputSize, int outputSize)
+        public Network()
         {
             //Wpisujemy domyślne wartości
             LEARNING_RATE = 0.2;
             currentIteration = 0;
             maximumIteration = 10;
-
-            InputNumber = inputSize;
-            OutputNumber = outputSize;
-
-            //Tworzymy tablice z neuronami na wejściu oraz na wyjściu
-            InputLayers = new InputLayer[InputNumber];
-            OutputLayers = new OutputLayer[OutputNumber];
-
-            var random = new Random();
-            //Inicjalizujemy wagi losowymi wartościami z zakresu 0.01 - 0.02
-            for (int i = 0; i < InputNumber; ++i)
-            {
-                InputLayers[i].Weights = new double[OutputNumber];
-
-                for (int j = 0; j < OutputNumber; ++j)
-                {
-                    InputLayers[i].Weights[j] = random.Next(1, 3) / 100.0;
-                }
-            }
         }
 
         private double Activation(double total)
@@ -154,6 +135,28 @@ namespace RozpoznawaniePisma
 
                 OutputLayers[i].InputSum = total;
                 OutputLayers[i].Output = Activation(total);
+            }
+        }
+
+        public void Initialize(int inputSize, int outputSize)
+        {
+            InputNumber = inputSize;
+            OutputNumber = outputSize;
+
+            //Tworzymy tablice z neuronami na wejściu oraz na wyjściu
+            InputLayers = new InputLayer[InputNumber];
+            OutputLayers = new OutputLayer[OutputNumber];
+
+            var random = new Random();
+            //Inicjalizujemy wagi losowymi wartościami z zakresu 0.01 - 0.02
+            for (int i = 0; i < InputNumber; ++i)
+            {
+                InputLayers[i].Weights = new double[OutputNumber];
+
+                for (int j = 0; j < OutputNumber; ++j)
+                {
+                    InputLayers[i].Weights[j] = random.Next(1, 3) / 100.0;
+                }
             }
         }
     }
