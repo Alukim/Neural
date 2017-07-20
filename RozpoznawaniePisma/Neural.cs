@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using static RozpoznawaniePisma.Network;
 
 namespace RozpoznawaniePisma
 {
@@ -62,14 +59,16 @@ namespace RozpoznawaniePisma
 
                     var image = new Bitmap(files[i]);
 
-                    for(int x = 0; x < imageSize; ++x)
-                        for(int y = 0; y < imageSize; ++y)
+                    for (int x = 0; x < imageSize; ++x)
+                    {
+                        for (int y = 0; y < imageSize; ++y)
                         {
                             var pixel = image.GetPixel(x, y);
 
                             // Konwertujemy color pixela na odpowiednią wartość input-a. 0.0 - kolor biały; 1.0 - kolor czarny
                             inputs[i][x * imageSize + y] = (1.0 - (pixel.R / 255.0 + pixel.G / 255.0 + pixel.B / 255.0) / 3.0) < 0.5 ? 0.0 : 1.0;
                         }
+                    }
 
                     outputs[i] = new double[files.Length];
 
@@ -96,6 +95,65 @@ namespace RozpoznawaniePisma
             {
                 ShowError($"Błąd przy próbie wgrania i nauczenia sieci.\nExc: {exc.Message}");
             }
+        }
+
+        private void readPicture_Click(object sender, EventArgs e)
+            => fileBrowser.ShowDialog();
+
+        private void recognizeButton_Click(object sender, EventArgs e)
+        {
+            // Zakładamy, że obrazy są kwadratowe
+            var imageSize = pictureBox.Image.Width;
+
+            // Pobieramy dane z obrazu i przeszktałcamy
+
+            var sample = new double[imageSize * imageSize];
+
+            var image = new Bitmap(pictureBox.ImageLocation);
+
+            for (int x = 0; x < imageSize; ++x)
+            {
+                for (int y = 0; y < imageSize; ++y)
+                {
+                    var pixel = image.GetPixel(x, y);
+
+                    // Konwertujemy color pixela na odpowiednią wartość input-a. 0.0 - kolor biały; 1.0 - kolor czarny
+                    sample[x * imageSize + y] = (1.0 - (pixel.R / 255.0 + pixel.G / 255.0 + pixel.B / 255.0) / 3.0) < 0.5 ? 0.0 : 1.0;
+                }
+            }
+
+            network.Recognize(sample);
+
+            // Wyświetlamy wartości wyjściowe
+
+            recogonizeDataView.Items.Clear();
+
+            foreach(var output in network.OutputLayers)
+            {
+                var item = recogonizeDataView.Items.Add(output.Value);
+                item.SubItems.Add(output.Output.ToString("#0.000000"));
+            }
+
+            var maxValue = network.OutputLayers.Max(x => x.Output);
+            OutputLayer? selectedOutput = null;
+
+            try
+            {
+                selectedOutput = network.OutputLayers.Single(x => x.Output == maxValue);
+            }
+            catch (Exception exc) { }
+
+            if (selectedOutput != null)
+                recognizeTextBox.Text = $"Rozpoznano: {selectedOutput.Value}";
+            else
+                recognizeTextBox.Text = $"Nie rozpoznano";
+        }
+
+        private void fileSelected(object sender, CancelEventArgs e)
+        {
+            var image = new Bitmap(fileBrowser.FileName);
+            pictureBox.Image = new Bitmap(image, new Size(112, 112));
+            recognizeButton.Enabled = true;
         }
     }
 }

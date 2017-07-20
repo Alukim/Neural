@@ -37,7 +37,7 @@ namespace RozpoznawaniePisma
             //Wpisujemy domyślne wartości
             LEARNING_RATE = 0.2;
             currentIteration = 0;
-            maximumIteration = 10;
+            maximumIteration = 100;
         }
 
         private double Activation(double total)

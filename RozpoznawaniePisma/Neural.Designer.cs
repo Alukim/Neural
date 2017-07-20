@@ -32,22 +32,32 @@
             this.trainingPage = new System.Windows.Forms.TabPage();
             this.pathLabel = new System.Windows.Forms.Label();
             this.trainingDataView = new System.Windows.Forms.ListView();
+            this.iterationColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.errorColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.trainButton = new System.Windows.Forms.Button();
             this.iterationLabel = new System.Windows.Forms.Label();
             this.numberOfIterationTextBox = new System.Windows.Forms.TextBox();
             this.selectPathButton = new System.Windows.Forms.Button();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.recognizePage = new System.Windows.Forms.TabPage();
+            this.recognizeButton = new System.Windows.Forms.Button();
+            this.readPicture = new System.Windows.Forms.Button();
+            this.pictureBox = new System.Windows.Forms.PictureBox();
+            this.recogonizeDataView = new System.Windows.Forms.ListView();
+            this.exitNeuralHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.valueHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
-            this.iterationColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.errorColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.fileBrowser = new System.Windows.Forms.OpenFileDialog();
+            this.recognizeTextBox = new System.Windows.Forms.RichTextBox();
             this.tabMenu.SuspendLayout();
             this.trainingPage.SuspendLayout();
+            this.recognizePage.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.SuspendLayout();
             // 
             // tabMenu
             // 
             this.tabMenu.Controls.Add(this.trainingPage);
-            this.tabMenu.Controls.Add(this.tabPage2);
+            this.tabMenu.Controls.Add(this.recognizePage);
             this.tabMenu.Location = new System.Drawing.Point(2, 3);
             this.tabMenu.Name = "tabMenu";
             this.tabMenu.SelectedIndex = 0;
@@ -91,6 +101,16 @@
             this.trainingDataView.UseCompatibleStateImageBehavior = false;
             this.trainingDataView.View = System.Windows.Forms.View.Details;
             // 
+            // iterationColumn
+            // 
+            this.iterationColumn.Text = "Iteracja";
+            this.iterationColumn.Width = 155;
+            // 
+            // errorColumn
+            // 
+            this.errorColumn.Text = "Błąd";
+            this.errorColumn.Width = 146;
+            // 
             // trainButton
             // 
             this.trainButton.Enabled = false;
@@ -131,25 +151,84 @@
             this.selectPathButton.UseVisualStyleBackColor = true;
             this.selectPathButton.Click += new System.EventHandler(this.selectPathButton_Click);
             // 
-            // tabPage2
+            // recognizePage
             // 
-            this.tabPage2.Location = new System.Drawing.Point(4, 25);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(842, 631);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "tabPage2";
-            this.tabPage2.UseVisualStyleBackColor = true;
+            this.recognizePage.Controls.Add(this.recognizeTextBox);
+            this.recognizePage.Controls.Add(this.recognizeButton);
+            this.recognizePage.Controls.Add(this.readPicture);
+            this.recognizePage.Controls.Add(this.pictureBox);
+            this.recognizePage.Controls.Add(this.recogonizeDataView);
+            this.recognizePage.Location = new System.Drawing.Point(4, 25);
+            this.recognizePage.Name = "recognizePage";
+            this.recognizePage.Padding = new System.Windows.Forms.Padding(3);
+            this.recognizePage.Size = new System.Drawing.Size(842, 631);
+            this.recognizePage.TabIndex = 1;
+            this.recognizePage.Text = "Rozpoznawanie";
+            this.recognizePage.UseVisualStyleBackColor = true;
             // 
-            // iterationColumn
+            // recognizeButton
             // 
-            this.iterationColumn.Text = "Iteracja";
-            this.iterationColumn.Width = 155;
+            this.recognizeButton.Location = new System.Drawing.Point(163, 63);
+            this.recognizeButton.Name = "recognizeButton";
+            this.recognizeButton.Size = new System.Drawing.Size(93, 30);
+            this.recognizeButton.TabIndex = 8;
+            this.recognizeButton.Text = "Rozpoznaj";
+            this.recognizeButton.UseVisualStyleBackColor = true;
+            this.recognizeButton.Click += new System.EventHandler(this.recognizeButton_Click);
             // 
-            // errorColumn
+            // readPicture
             // 
-            this.errorColumn.Text = "Błąd";
-            this.errorColumn.Width = 146;
+            this.readPicture.Location = new System.Drawing.Point(163, 23);
+            this.readPicture.Name = "readPicture";
+            this.readPicture.Size = new System.Drawing.Size(93, 30);
+            this.readPicture.TabIndex = 7;
+            this.readPicture.Text = "Wczytaj obraz";
+            this.readPicture.UseVisualStyleBackColor = true;
+            this.readPicture.Click += new System.EventHandler(this.readPicture_Click);
+            // 
+            // pictureBox
+            // 
+            this.pictureBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pictureBox.Location = new System.Drawing.Point(7, 7);
+            this.pictureBox.Margin = new System.Windows.Forms.Padding(4);
+            this.pictureBox.Name = "pictureBox";
+            this.pictureBox.Size = new System.Drawing.Size(149, 137);
+            this.pictureBox.TabIndex = 6;
+            this.pictureBox.TabStop = false;
+            // 
+            // recogonizeDataView
+            // 
+            this.recogonizeDataView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.exitNeuralHeader,
+            this.valueHeader});
+            this.recogonizeDataView.Location = new System.Drawing.Point(3, 155);
+            this.recogonizeDataView.Name = "recogonizeDataView";
+            this.recogonizeDataView.Size = new System.Drawing.Size(836, 473);
+            this.recogonizeDataView.TabIndex = 5;
+            this.recogonizeDataView.UseCompatibleStateImageBehavior = false;
+            this.recogonizeDataView.View = System.Windows.Forms.View.Details;
+            // 
+            // exitNeuralHeader
+            // 
+            this.exitNeuralHeader.Text = "Neuron wyjściowy";
+            this.exitNeuralHeader.Width = 155;
+            // 
+            // valueHeader
+            // 
+            this.valueHeader.Text = "Wartość";
+            this.valueHeader.Width = 146;
+            // 
+            // fileBrowser
+            // 
+            this.fileBrowser.FileOk += new System.ComponentModel.CancelEventHandler(this.fileSelected);
+            // 
+            // recognizeTextBox
+            // 
+            this.recognizeTextBox.Location = new System.Drawing.Point(331, 13);
+            this.recognizeTextBox.Name = "recognizeTextBox";
+            this.recognizeTextBox.Size = new System.Drawing.Size(210, 40);
+            this.recognizeTextBox.TabIndex = 9;
+            this.recognizeTextBox.Text = "";
             // 
             // Neural
             // 
@@ -162,6 +241,8 @@
             this.tabMenu.ResumeLayout(false);
             this.trainingPage.ResumeLayout(false);
             this.trainingPage.PerformLayout();
+            this.recognizePage.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -170,7 +251,7 @@
 
         private System.Windows.Forms.TabControl tabMenu;
         private System.Windows.Forms.TabPage trainingPage;
-        private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.TabPage recognizePage;
         private System.Windows.Forms.Label iterationLabel;
         private System.Windows.Forms.TextBox numberOfIterationTextBox;
         private System.Windows.Forms.Button selectPathButton;
@@ -180,6 +261,14 @@
         private System.Windows.Forms.Label pathLabel;
         private System.Windows.Forms.ColumnHeader iterationColumn;
         private System.Windows.Forms.ColumnHeader errorColumn;
+        private System.Windows.Forms.Button recognizeButton;
+        private System.Windows.Forms.Button readPicture;
+        private System.Windows.Forms.PictureBox pictureBox;
+        private System.Windows.Forms.ListView recogonizeDataView;
+        private System.Windows.Forms.ColumnHeader exitNeuralHeader;
+        private System.Windows.Forms.ColumnHeader valueHeader;
+        private System.Windows.Forms.OpenFileDialog fileBrowser;
+        private System.Windows.Forms.RichTextBox recognizeTextBox;
     }
 }
 
