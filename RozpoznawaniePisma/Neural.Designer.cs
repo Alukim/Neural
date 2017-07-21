@@ -48,6 +48,7 @@
             this.valueHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
             this.fileBrowser = new System.Windows.Forms.OpenFileDialog();
+            this.clearButton = new System.Windows.Forms.Button();
             this.tabMenu.SuspendLayout();
             this.trainingPage.SuspendLayout();
             this.recognizePage.SuspendLayout();
@@ -160,6 +161,7 @@
             // 
             // recognizePage
             // 
+            this.recognizePage.Controls.Add(this.clearButton);
             this.recognizePage.Controls.Add(this.recognizeTextBox);
             this.recognizePage.Controls.Add(this.recognizeButton);
             this.recognizePage.Controls.Add(this.readPicture);
@@ -244,6 +246,17 @@
             // 
             this.fileBrowser.FileOk += new System.ComponentModel.CancelEventHandler(this.fileSelected);
             // 
+            // clearButton
+            // 
+            this.clearButton.Location = new System.Drawing.Point(122, 82);
+            this.clearButton.Margin = new System.Windows.Forms.Padding(2);
+            this.clearButton.Name = "clearButton";
+            this.clearButton.Size = new System.Drawing.Size(70, 24);
+            this.clearButton.TabIndex = 10;
+            this.clearButton.Text = "Wyczyść";
+            this.clearButton.UseVisualStyleBackColor = true;
+            this.clearButton.Click += new System.EventHandler(this.clearButton_Click);
+            // 
             // Neural
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -284,6 +297,7 @@
         private System.Windows.Forms.ColumnHeader valueHeader;
         private System.Windows.Forms.OpenFileDialog fileBrowser;
         private System.Windows.Forms.RichTextBox recognizeTextBox;
+        private System.Windows.Forms.Button clearButton;
     }
 }
 

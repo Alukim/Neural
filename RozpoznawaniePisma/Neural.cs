@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -13,13 +14,23 @@ namespace RozpoznawaniePisma
         private Network network = new Network();
         private const float penSize = 2;
         private Pen pen = new Pen(Color.Black, penSize);
-        private Graphics graphic;
+        private Bitmap bmp;
         private bool isDrawing = false;
 
         public Neural()
         {
             InitializeComponent();
-            graphic = pictureBox.CreateGraphics();
+            InitializeBitmap();
+        }
+
+        private void InitializeBitmap()
+        {
+            bmp = new Bitmap(pictureBox.Width, pictureBox.Height);
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                g.Clear(Color.White);
+            }
+            pictureBox.Image = bmp;
         }
 
         private void ShowError(string message)
@@ -115,13 +126,7 @@ namespace RozpoznawaniePisma
 
             var sample = new double[imageSize * imageSize];
 
-            Bitmap image;
-            if (string.IsNullOrEmpty(pictureBox.ImageLocation))
-            {
-                image = new Bitmap(pictureBox.Width, pictureBox.Height, graphic);
-            }
-            else
-                image = new Bitmap(pictureBox.ImageLocation);
+            Bitmap image = (Bitmap)pictureBox.Image;
 
             for (int x = 0; x < imageSize; ++x)
             {
@@ -156,7 +161,7 @@ namespace RozpoznawaniePisma
             catch (Exception exc) { }
 
             if (selectedOutput != null)
-                recognizeTextBox.Text = $"Rozpoznano: {selectedOutput.Value}";
+                recognizeTextBox.Text = $"Rozpoznano: {selectedOutput.Value.Value}";
             else
                 recognizeTextBox.Text = $"Nie rozpoznano";
         }
@@ -165,6 +170,7 @@ namespace RozpoznawaniePisma
         {
             var image = new Bitmap(fileBrowser.FileName);
             pictureBox.Image = new Bitmap(image, new Size(112, 112));
+            pictureBox.ImageLocation = fileBrowser.FileName;
             recognizeButton.Enabled = true;
         }
 
@@ -187,7 +193,18 @@ namespace RozpoznawaniePisma
 
         private void DrawPoint(int x, int y)
         {
-            graphic.DrawEllipse(pen, x, y, pen.Width, pen.Width);
-        }        
+            using (Graphics graphic = Graphics.FromImage(pictureBox.Image))
+            {
+                graphic.DrawEllipse(pen, x, y, pen.Width, pen.Width);
+            }
+            pictureBox.Invalidate();
+            
+        }
+
+        private void clearButton_Click(object sender, EventArgs e)
+        {
+            InitializeBitmap();
+            pictureBox.Refresh();
+        }
     }
 }
