@@ -11,10 +11,15 @@ namespace RozpoznawaniePisma
     public partial class Neural : Form
     {
         private Network network = new Network();
+        private const float penSize = 2;
+        private Pen pen = new Pen(Color.Black, penSize);
+        private Graphics graphic;
+        private bool isDrawing = false;
 
         public Neural()
         {
             InitializeComponent();
+            graphic = pictureBox.CreateGraphics();
         }
 
         private void ShowError(string message)
@@ -103,13 +108,20 @@ namespace RozpoznawaniePisma
         private void recognizeButton_Click(object sender, EventArgs e)
         {
             // Zakładamy, że obrazy są kwadratowe
-            var imageSize = pictureBox.Image.Width;
+
+            var imageSize = pictureBox.Size.Height;
 
             // Pobieramy dane z obrazu i przeszktałcamy
 
             var sample = new double[imageSize * imageSize];
 
-            var image = new Bitmap(pictureBox.ImageLocation);
+            Bitmap image;
+            if (string.IsNullOrEmpty(pictureBox.ImageLocation))
+            {
+                image = new Bitmap(pictureBox.Width, pictureBox.Height, graphic);
+            }
+            else
+                image = new Bitmap(pictureBox.ImageLocation);
 
             for (int x = 0; x < imageSize; ++x)
             {
@@ -155,5 +167,27 @@ namespace RozpoznawaniePisma
             pictureBox.Image = new Bitmap(image, new Size(112, 112));
             recognizeButton.Enabled = true;
         }
+
+        private void pictureBox_MouseUp(object sender, MouseEventArgs e)
+        {
+            isDrawing = false;
+        }
+
+        private void pictureBox_MouseDown(object sender, MouseEventArgs e)
+        {
+            isDrawing = true;
+            DrawPoint(e.X, e.Y);
+        }
+
+        private void pictureBox_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (isDrawing)
+                DrawPoint(e.X, e.Y);
+        }
+
+        private void DrawPoint(int x, int y)
+        {
+            graphic.DrawEllipse(pen, x, y, pen.Width, pen.Width);
+        }        
     }
 }

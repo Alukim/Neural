@@ -39,6 +39,7 @@
             this.numberOfIterationTextBox = new System.Windows.Forms.TextBox();
             this.selectPathButton = new System.Windows.Forms.Button();
             this.recognizePage = new System.Windows.Forms.TabPage();
+            this.recognizeTextBox = new System.Windows.Forms.RichTextBox();
             this.recognizeButton = new System.Windows.Forms.Button();
             this.readPicture = new System.Windows.Forms.Button();
             this.pictureBox = new System.Windows.Forms.PictureBox();
@@ -47,7 +48,6 @@
             this.valueHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
             this.fileBrowser = new System.Windows.Forms.OpenFileDialog();
-            this.recognizeTextBox = new System.Windows.Forms.RichTextBox();
             this.tabMenu.SuspendLayout();
             this.trainingPage.SuspendLayout();
             this.recognizePage.SuspendLayout();
@@ -58,10 +58,11 @@
             // 
             this.tabMenu.Controls.Add(this.trainingPage);
             this.tabMenu.Controls.Add(this.recognizePage);
-            this.tabMenu.Location = new System.Drawing.Point(2, 3);
+            this.tabMenu.Location = new System.Drawing.Point(2, 2);
+            this.tabMenu.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.tabMenu.Name = "tabMenu";
             this.tabMenu.SelectedIndex = 0;
-            this.tabMenu.Size = new System.Drawing.Size(850, 660);
+            this.tabMenu.Size = new System.Drawing.Size(638, 536);
             this.tabMenu.TabIndex = 0;
             // 
             // trainingPage
@@ -72,10 +73,10 @@
             this.trainingPage.Controls.Add(this.iterationLabel);
             this.trainingPage.Controls.Add(this.numberOfIterationTextBox);
             this.trainingPage.Controls.Add(this.selectPathButton);
-            this.trainingPage.Location = new System.Drawing.Point(4, 25);
+            this.trainingPage.Location = new System.Drawing.Point(4, 22);
             this.trainingPage.Margin = new System.Windows.Forms.Padding(0);
             this.trainingPage.Name = "trainingPage";
-            this.trainingPage.Size = new System.Drawing.Size(842, 631);
+            this.trainingPage.Size = new System.Drawing.Size(630, 510);
             this.trainingPage.TabIndex = 0;
             this.trainingPage.Text = "Trenowanie";
             this.trainingPage.UseVisualStyleBackColor = true;
@@ -83,9 +84,10 @@
             // pathLabel
             // 
             this.pathLabel.AutoSize = true;
-            this.pathLabel.Location = new System.Drawing.Point(337, 23);
+            this.pathLabel.Location = new System.Drawing.Point(253, 19);
+            this.pathLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.pathLabel.Name = "pathLabel";
-            this.pathLabel.Size = new System.Drawing.Size(65, 17);
+            this.pathLabel.Size = new System.Drawing.Size(51, 13);
             this.pathLabel.TabIndex = 5;
             this.pathLabel.Text = "Ścieżka: ";
             // 
@@ -94,9 +96,10 @@
             this.trainingDataView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.iterationColumn,
             this.errorColumn});
-            this.trainingDataView.Location = new System.Drawing.Point(6, 153);
+            this.trainingDataView.Location = new System.Drawing.Point(4, 124);
+            this.trainingDataView.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.trainingDataView.Name = "trainingDataView";
-            this.trainingDataView.Size = new System.Drawing.Size(828, 473);
+            this.trainingDataView.Size = new System.Drawing.Size(622, 385);
             this.trainingDataView.TabIndex = 4;
             this.trainingDataView.UseCompatibleStateImageBehavior = false;
             this.trainingDataView.View = System.Windows.Forms.View.Details;
@@ -114,9 +117,10 @@
             // trainButton
             // 
             this.trainButton.Enabled = false;
-            this.trainButton.Location = new System.Drawing.Point(20, 117);
+            this.trainButton.Location = new System.Drawing.Point(15, 95);
+            this.trainButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.trainButton.Name = "trainButton";
-            this.trainButton.Size = new System.Drawing.Size(150, 30);
+            this.trainButton.Size = new System.Drawing.Size(112, 24);
             this.trainButton.TabIndex = 3;
             this.trainButton.Text = "Trenuj";
             this.trainButton.UseVisualStyleBackColor = true;
@@ -125,17 +129,19 @@
             // iterationLabel
             // 
             this.iterationLabel.AutoSize = true;
-            this.iterationLabel.Location = new System.Drawing.Point(35, 59);
+            this.iterationLabel.Location = new System.Drawing.Point(26, 48);
+            this.iterationLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.iterationLabel.Name = "iterationLabel";
-            this.iterationLabel.Size = new System.Drawing.Size(94, 17);
+            this.iterationLabel.Size = new System.Drawing.Size(71, 13);
             this.iterationLabel.TabIndex = 2;
             this.iterationLabel.Text = "Liczba iteracji";
             // 
             // numberOfIterationTextBox
             // 
-            this.numberOfIterationTextBox.Location = new System.Drawing.Point(20, 79);
+            this.numberOfIterationTextBox.Location = new System.Drawing.Point(15, 64);
+            this.numberOfIterationTextBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.numberOfIterationTextBox.Name = "numberOfIterationTextBox";
-            this.numberOfIterationTextBox.Size = new System.Drawing.Size(129, 22);
+            this.numberOfIterationTextBox.Size = new System.Drawing.Size(98, 20);
             this.numberOfIterationTextBox.TabIndex = 1;
             this.numberOfIterationTextBox.Text = "100";
             this.numberOfIterationTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
@@ -143,9 +149,10 @@
             // 
             // selectPathButton
             // 
-            this.selectPathButton.Location = new System.Drawing.Point(20, 16);
+            this.selectPathButton.Location = new System.Drawing.Point(15, 13);
+            this.selectPathButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.selectPathButton.Name = "selectPathButton";
-            this.selectPathButton.Size = new System.Drawing.Size(300, 30);
+            this.selectPathButton.Size = new System.Drawing.Size(225, 24);
             this.selectPathButton.TabIndex = 0;
             this.selectPathButton.Text = "Wybierz ścieżkę z obrazami do nauczania";
             this.selectPathButton.UseVisualStyleBackColor = true;
@@ -158,19 +165,30 @@
             this.recognizePage.Controls.Add(this.readPicture);
             this.recognizePage.Controls.Add(this.pictureBox);
             this.recognizePage.Controls.Add(this.recogonizeDataView);
-            this.recognizePage.Location = new System.Drawing.Point(4, 25);
+            this.recognizePage.Location = new System.Drawing.Point(4, 22);
+            this.recognizePage.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.recognizePage.Name = "recognizePage";
-            this.recognizePage.Padding = new System.Windows.Forms.Padding(3);
-            this.recognizePage.Size = new System.Drawing.Size(842, 631);
+            this.recognizePage.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.recognizePage.Size = new System.Drawing.Size(630, 510);
             this.recognizePage.TabIndex = 1;
             this.recognizePage.Text = "Rozpoznawanie";
             this.recognizePage.UseVisualStyleBackColor = true;
             // 
+            // recognizeTextBox
+            // 
+            this.recognizeTextBox.Location = new System.Drawing.Point(248, 11);
+            this.recognizeTextBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.recognizeTextBox.Name = "recognizeTextBox";
+            this.recognizeTextBox.Size = new System.Drawing.Size(158, 33);
+            this.recognizeTextBox.TabIndex = 9;
+            this.recognizeTextBox.Text = "";
+            // 
             // recognizeButton
             // 
-            this.recognizeButton.Location = new System.Drawing.Point(163, 63);
+            this.recognizeButton.Location = new System.Drawing.Point(122, 51);
+            this.recognizeButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.recognizeButton.Name = "recognizeButton";
-            this.recognizeButton.Size = new System.Drawing.Size(93, 30);
+            this.recognizeButton.Size = new System.Drawing.Size(70, 24);
             this.recognizeButton.TabIndex = 8;
             this.recognizeButton.Text = "Rozpoznaj";
             this.recognizeButton.UseVisualStyleBackColor = true;
@@ -178,9 +196,10 @@
             // 
             // readPicture
             // 
-            this.readPicture.Location = new System.Drawing.Point(163, 23);
+            this.readPicture.Location = new System.Drawing.Point(122, 19);
+            this.readPicture.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.readPicture.Name = "readPicture";
-            this.readPicture.Size = new System.Drawing.Size(93, 30);
+            this.readPicture.Size = new System.Drawing.Size(70, 24);
             this.readPicture.TabIndex = 7;
             this.readPicture.Text = "Wczytaj obraz";
             this.readPicture.UseVisualStyleBackColor = true;
@@ -189,21 +208,24 @@
             // pictureBox
             // 
             this.pictureBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pictureBox.Location = new System.Drawing.Point(7, 7);
-            this.pictureBox.Margin = new System.Windows.Forms.Padding(4);
+            this.pictureBox.Location = new System.Drawing.Point(5, 6);
             this.pictureBox.Name = "pictureBox";
-            this.pictureBox.Size = new System.Drawing.Size(149, 137);
+            this.pictureBox.Size = new System.Drawing.Size(112, 112);
             this.pictureBox.TabIndex = 6;
             this.pictureBox.TabStop = false;
+            this.pictureBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox_MouseDown);
+            this.pictureBox.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox_MouseMove);
+            this.pictureBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pictureBox_MouseUp);
             // 
             // recogonizeDataView
             // 
             this.recogonizeDataView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.exitNeuralHeader,
             this.valueHeader});
-            this.recogonizeDataView.Location = new System.Drawing.Point(3, 155);
+            this.recogonizeDataView.Location = new System.Drawing.Point(2, 126);
+            this.recogonizeDataView.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.recogonizeDataView.Name = "recogonizeDataView";
-            this.recogonizeDataView.Size = new System.Drawing.Size(836, 473);
+            this.recogonizeDataView.Size = new System.Drawing.Size(628, 385);
             this.recogonizeDataView.TabIndex = 5;
             this.recogonizeDataView.UseCompatibleStateImageBehavior = false;
             this.recogonizeDataView.View = System.Windows.Forms.View.Details;
@@ -222,20 +244,13 @@
             // 
             this.fileBrowser.FileOk += new System.ComponentModel.CancelEventHandler(this.fileSelected);
             // 
-            // recognizeTextBox
-            // 
-            this.recognizeTextBox.Location = new System.Drawing.Point(331, 13);
-            this.recognizeTextBox.Name = "recognizeTextBox";
-            this.recognizeTextBox.Size = new System.Drawing.Size(210, 40);
-            this.recognizeTextBox.TabIndex = 9;
-            this.recognizeTextBox.Text = "";
-            // 
             // Neural
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(852, 666);
+            this.ClientSize = new System.Drawing.Size(639, 541);
             this.Controls.Add(this.tabMenu);
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "Neural";
             this.Text = "Form1";
             this.tabMenu.ResumeLayout(false);
