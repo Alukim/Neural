@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using static RozpoznawaniePisma.Network;
 
@@ -56,43 +58,29 @@ namespace RozpoznawaniePisma
             try
             {
                 // Pobieramy z wskazanej lokalizacji, wszystkie obrazy typu "bmp"
-                var files = Directory.GetFiles(folderBrowser.SelectedPath, "*.bmp");
+                var files = Directory.GetFiles(folderBrowser.SelectedPath, "*.jpg");
 
-                // Założyliśmy, że obrazy do nauczania są kwadratami
-                var imageSize = Bitmap.FromFile(files[0]).Width;
-                var numberOfPixels = imageSize * imageSize;
-
-                // Inicjalizujemy warstwy naszej sieci
-                network.Initialize(numberOfPixels, files.Length);
+                network.Initialize(28 * 28, 10);
 
                 // Pobieramy dane z obrazów i konwertujemy do tablic o typie double
                 var inputs = new double[files.Length][];
                 var outputs = new double[files.Length][];
 
+                var tasks = new Task[10];
+
                 for(int i = 0; i < files.Length; ++i)
                 {
-                    inputs[i] = new double[numberOfPixels];
+                    tasks[i] = Task.Run(async () => await GenerateTrainingData(files[i]));
 
-                    var image = new Bitmap(files[i]);
+                    Task.WaitAll(tasks);
 
-                    for (int x = 0; x < imageSize; ++x)
-                    {
-                        for (int y = 0; y < imageSize; ++y)
-                        {
-                            var pixel = image.GetPixel(x, y);
+                    //outputs[i] = new double[files.Length];
 
-                            // Konwertujemy color pixela na odpowiednią wartość input-a. 0.0 - kolor biały; 1.0 - kolor czarny
-                            inputs[i][x * imageSize + y] = (1.0 - (pixel.R / 255.0 + pixel.G / 255.0 + pixel.B / 255.0) / 3.0) < 0.5 ? 0.0 : 1.0;
-                        }
-                    }
+                    //for (int j = 0; j < files.Length; ++j)
+                    //    outputs[i][j] = i == j ? 1.0 : 0.0;
 
-                    outputs[i] = new double[files.Length];
-
-                    for (int j = 0; j < files.Length; ++j)
-                        outputs[i][j] = i == j ? 1.0 : 0.0;
-
-                    var fileInfo = new FileInfo(files[i]);
-                    network.OutputLayers[i].Value = fileInfo.Name.Replace(".bmp", "");
+                    //var fileInfo = new FileInfo(files[i]);
+                    //network.OutputLayers[i].Value = fileInfo.Name.Replace(".jpg", "");
                 }
 
                 // Trenujemy sieć
@@ -111,6 +99,42 @@ namespace RozpoznawaniePisma
             {
                 ShowError($"Błąd przy próbie wgrania i nauczenia sieci.\nExc: {exc.Message}");
             }
+        }
+
+        private Task<List<TrainingData>> GenerateTrainingData(string filePath)
+        {
+            var image = new Bitmap(filePath);
+            var trainingDataList = new List<TrainingData>();
+            var fileInfo = new FileInfo(filePath);
+            var value = int.Parse(fileInfo.Name.Replace(".jpg", ""));
+
+            const int imageSideSize = 28;
+
+            var columnsCount = (image.Width / imageSideSize) - 1;
+            var rawsCount = image.Height / imageSideSize;
+
+            for(var i = 0; i < rawsCount; ++i)
+            {
+                for (var j = 0; j < columnsCount; ++j)
+                {
+                    var trainingData = new TrainingData(value);
+
+                    for (var x = 0; x < imageSideSize; ++x)
+                    {
+                        for (var y = 0; y < imageSideSize; ++y)
+                        {
+                            var pixel = image.GetPixel((j * imageSideSize) + x, (i * imageSideSize) + y);
+
+                            // Konwertujemy color pixela na odpowiednią wartość input-a. 0.0 - kolor biały; 1.0 - kolor czarny
+                            trainingData.Data.Add((1.0 - (pixel.R / 255.0 + pixel.G / 255.0 + pixel.B / 255.0) / 3.0) < 0.5 ? 0.0 : 1.0);
+                        }
+                    }
+
+                    trainingDataList.Add(trainingData);
+                }
+            }
+
+            return Task.FromResult(trainingDataList);
         }
 
         private void readPicture_Click(object sender, EventArgs e)
@@ -158,7 +182,7 @@ namespace RozpoznawaniePisma
             {
                 selectedOutput = network.OutputLayers.Single(x => x.Output == maxValue);
             }
-            catch (Exception exc) { }
+            catch (Exception exc) { ShowError(exc.Message); }
 
             if (selectedOutput != null)
                 recognizeTextBox.Text = $"Rozpoznano: {selectedOutput.Value.Value}";
@@ -205,6 +229,18 @@ namespace RozpoznawaniePisma
         {
             InitializeBitmap();
             pictureBox.Refresh();
+        }
+    }
+
+    internal class TrainingData
+    {
+        public int Value { get; }
+        public List<double> Data { get; set; }
+
+        public TrainingData(int value)
+        {
+            Value = value;
+            Data = new List<double>();
         }
     }
 }
