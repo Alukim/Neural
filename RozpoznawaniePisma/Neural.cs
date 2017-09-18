@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static RozpoznawaniePisma.Network;
@@ -15,7 +15,7 @@ namespace RozpoznawaniePisma
     {
         private Network network = new Network();
         private const float penSize = 2;
-        private Pen pen = new Pen(Color.Black, penSize);
+        private Pen pen = new Pen(Color.White, penSize);
         private Bitmap bmp;
         private bool isDrawing = false;
 
@@ -30,7 +30,7 @@ namespace RozpoznawaniePisma
             bmp = new Bitmap(pictureBox.Width, pictureBox.Height);
             using (Graphics g = Graphics.FromImage(bmp))
             {
-                g.Clear(Color.White);
+                g.Clear(Color.Black);
             }
             pictureBox.Image = bmp;
         }
@@ -57,47 +57,95 @@ namespace RozpoznawaniePisma
         {
             try
             {
-                // Pobieramy z wskazanej lokalizacji, wszystkie obrazy typu "bmp"
-                var files = Directory.GetFiles(folderBrowser.SelectedPath, "*.jpg");
+                // Pobieramy z wskazanej lokalizacji, wszystkie obrazy typu "jpg"
+                var files = Directory.GetFiles(folderBrowser.SelectedPath, "*.txt");
+                int numberOfPixels = 28 * 28;
+                int numberOfPerceptons = numberOfPixels + 1;
+                int numberOfOutputs = 10;
 
-                network.Initialize(28 * 28, 10);
+                network.Initialize(numberOfPerceptons, numberOfOutputs);
 
-                // Pobieramy dane z obrazów i konwertujemy do tablic o typie double
-                var inputs = new double[files.Length][];
-                var outputs = new double[files.Length][];
+                var trainingData = new List<TrainingPackages>();
 
-                var tasks = new Task[10];
+                var photosInFileCount = 4000;
+                var openFiles = new List<StreamReader>();
+                numberOfOutputs = 0;
 
-                for(int i = 0; i < files.Length; ++i)
+                foreach (var file in files)
                 {
-                    tasks[i] = Task.Run(async () => await GenerateTrainingData(files[i]));
+                    openFiles.Add(File.OpenText(file));
 
-                    Task.WaitAll(tasks);
-
-                    //outputs[i] = new double[files.Length];
-
-                    //for (int j = 0; j < files.Length; ++j)
-                    //    outputs[i][j] = i == j ? 1.0 : 0.0;
-
-                    //var fileInfo = new FileInfo(files[i]);
-                    //network.OutputLayers[i].Value = fileInfo.Name.Replace(".jpg", "");
+                    var fileInfo = new FileInfo(files[numberOfOutputs]);
+                    network.OutputLayers[numberOfOutputs].Value = fileInfo.Name.Replace(".txt", "");
+                    ++numberOfOutputs;
                 }
 
-                // Trenujemy sieć
-                network.TrainNetwork(inputs, outputs);
-
-                // Wyświetlmy wartości błędów w kolejnych iteracjach.
-                trainingDataView.Items.Clear();
-
-                for(int i = 0; i < network.currentIteration; ++i)
+                do
                 {
-                    var item = trainingDataView.Items.Add(i.ToString());
-                    item.SubItems.Add(network.Errors[i].ToString("#0.000000"));
-                }
+                    // Pobieramy dane z obrazów i konwertujemy do tablic o typie double
+                    var inputs = new double[files.Length][];
+                    var outputs = new double[files.Length][];
+
+                    for (int i = 0; i < files.Length; ++i)
+                    {
+                        inputs[i] = new double[numberOfPerceptons];
+
+                        var line = openFiles[i].ReadLine();
+                        var seperatedLine = line.Split(' ');
+
+                        for(int j = 0; j < numberOfPixels; ++j)
+                        {
+                            inputs[i][j] = double.Parse(seperatedLine[j]);
+                        }
+
+                        inputs[i][numberOfPixels] = 1;
+
+                        outputs[i] = new double[files.Length];
+
+                        for (int j = 0; j < files.Length; ++j)
+                            outputs[i][j] = i == j ? 1.0 : 0.0;
+                    }
+
+                    trainingData.Add(new TrainingPackages(inputs, outputs));
+                    --photosInFileCount;
+                } while (photosInFileCount != 0);
+
+                var task = new Task(() => Train(trainingData)).ContinueWith(x =>
+                {
+                    var endItem = trainingDataView.Items.Add(network.currentIteration.ToString());
+                    endItem.SubItems.Add(network.Errors[network.currentIteration - 1].ToString("#0.000000"));
+                    ShowError("DONE");
+                });
+
+                task.Wait();
             }
             catch(Exception exc)
             {
                 ShowError($"Błąd przy próbie wgrania i nauczenia sieci.\nExc: {exc.Message}");
+            }
+        }
+
+        private void Train(List<TrainingPackages> trainingData)
+        {
+            for (int i = 0; i < network.maximumIteration; i++)
+            {
+                iterationsNumber.Text = i.ToString();
+
+                network.CurrentError = 0;
+                network.currentIteration = 0;
+
+                foreach (var data in trainingData)
+                {
+                    // Trenujemy sieć
+                    network.TrainNetwork(data.inputs, data.outputs, trainingDataView);
+
+                    //if (network.currentIteration % 100 == 0 || network.currentIteration == 0)
+                    //{
+                    //    var item = trainingDataView.Items.Add(network.currentIteration.ToString());
+                    //    item.SubItems.Add(network.Errors[network.currentIteration == 0 ? 0 : network.currentIteration - 1].ToString("#0.000000"));
+                    //    trainingDataView.Refresh();
+                    //}
+                }
             }
         }
 
@@ -241,6 +289,18 @@ namespace RozpoznawaniePisma
         {
             Value = value;
             Data = new List<double>();
+        }
+    }
+
+    internal class TrainingPackages
+    {
+        public double[][] inputs;
+        public double[][] outputs;
+
+        public TrainingPackages(double[][] inputs, double[][] outputs)
+        {
+            this.inputs = inputs;
+            this.outputs = outputs;
         }
     }
 }

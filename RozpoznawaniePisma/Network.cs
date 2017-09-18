@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace RozpoznawaniePisma
 {
@@ -27,7 +29,8 @@ namespace RozpoznawaniePisma
         public InputLayer[] InputLayers;
         public OutputLayer[] OutputLayers;
 
-        public double[] Errors;
+        public List<double> Errors;
+        public double CurrentError;
 
         public int currentIteration;
         public int maximumIteration;
@@ -38,6 +41,9 @@ namespace RozpoznawaniePisma
             LEARNING_RATE = 0.2;
             currentIteration = 0;
             maximumIteration = 100;
+            CurrentError = 0.0;
+            Errors = new List<double>();
+            currentIteration = 0;
         }
 
         private double Activation(double total)
@@ -45,7 +51,7 @@ namespace RozpoznawaniePisma
 
         private void CalculateOutput(double[] pattern, string output)
         {
-            // Przpisujemy wejścia do warstwy wejściowej sieci
+            // Przepisujemy wejścia do warstwy wejściowej sieci
             for (int i = 0; i < pattern.Length; ++i)
                 InputLayers[i].Value = pattern[i];
 
@@ -87,36 +93,39 @@ namespace RozpoznawaniePisma
             return total;
         }
 
-        public bool TrainNetwork(double[][] inputs, double[][] outputs)
+        public void TrainNetwork(double[][] inputs, double[][] outputs, ListView view)
         {
-            double currentError = 0.0;
+
             double maximumError = 0.0;
 
-            currentIteration = 0;
-            Errors = new double[maximumIteration];
-
-            do
-            {
-                currentError = 0;
-
+            //do
+            //{
+            CurrentError = 0;
                 for (int i = 0; i < inputs.Length; ++i)
                 {
                     CalculateOutput(inputs[i], OutputLayers[i].Value);
                     BackPropagation();
 
-                    currentError += GetError();
+                    CurrentError += GetError();
                 }
 
-                Errors[currentIteration] = currentError;
+                Errors.Add(CurrentError);
                 ++currentIteration;
+            //}
+            //while (currentError > maximumError && currentIteration < maximumIteration);
+
+            //// Jeżeli maksymalny błąd został osiągnięty w mniejszej liczbie iteracji, to nauka sieci zakończyła się pomyślnie.
+            //if (currentIteration <= maximumIteration)
+            //    return true;
+
+            //return false;
+
+            if (currentIteration % 100 == 0 || currentIteration == 0)
+            {
+                var item = view.Items.Add(currentIteration.ToString());
+                item.SubItems.Add(Errors[currentIteration == 0 ? 0 : currentIteration - 1].ToString("#0.000000"));
+                view.Refresh();
             }
-            while (currentError > maximumError && currentIteration < maximumIteration);
-
-            // Jeżeli maksymalny błąd został osiągnięty w mniejszej liczbie iteracji, to nauka sieci zakończyła się pomyślnie.
-            if (currentIteration <= maximumIteration)
-                return true;
-
-            return false;
         }
 
         public void Recognize(double[] input)
