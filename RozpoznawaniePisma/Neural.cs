@@ -14,10 +14,11 @@ namespace RozpoznawaniePisma
     public partial class Neural : Form
     {
         private Network network = new Network();
-        private const float penSize = 2;
+        private const float penSize = 5;
         private Pen pen = new Pen(Color.White, penSize);
         private Bitmap bmp;
         private bool isDrawing = false;
+        const int IMAGE_SIZE = 28;
 
         public Neural()
         {
@@ -110,14 +111,7 @@ namespace RozpoznawaniePisma
                     --photosInFileCount;
                 } while (photosInFileCount != 0);
 
-                var task = new Task(() => Train(trainingData)).ContinueWith(x =>
-                {
-                    var endItem = trainingDataView.Items.Add(network.currentIteration.ToString());
-                    endItem.SubItems.Add(network.Errors[network.currentIteration - 1].ToString("#0.000000"));
-                    ShowError("DONE");
-                });
-
-                task.Wait();
+                Train(trainingData);
             }
             catch(Exception exc)
             {
@@ -196,18 +190,20 @@ namespace RozpoznawaniePisma
 
             // Pobieramy dane z obrazu i przeszktałcamy
 
-            var sample = new double[imageSize * imageSize];
+            var sample = new double[IMAGE_SIZE * IMAGE_SIZE];
 
             Bitmap image = (Bitmap)pictureBox.Image;
+            var size = new Size(IMAGE_SIZE, IMAGE_SIZE);
+            var resizedImage = new Bitmap(image, size);
 
-            for (int x = 0; x < imageSize; ++x)
+            for (int x = 0; x < IMAGE_SIZE; ++x)
             {
-                for (int y = 0; y < imageSize; ++y)
+                for (int y = 0; y < IMAGE_SIZE; ++y)
                 {
-                    var pixel = image.GetPixel(x, y);
+                    var pixel = resizedImage.GetPixel(x, y);
 
                     // Konwertujemy color pixela na odpowiednią wartość input-a. 0.0 - kolor biały; 1.0 - kolor czarny
-                    sample[x * imageSize + y] = (1.0 - (pixel.R / 255.0 + pixel.G / 255.0 + pixel.B / 255.0) / 3.0) < 0.5 ? 0.0 : 1.0;
+                    sample[x * IMAGE_SIZE + y] = (1.0 - (pixel.R / 255.0 + pixel.G / 255.0 + pixel.B / 255.0) / 3.0) < 0.5 ? 0.0 : 1.0;
                 }
             }
 
@@ -270,7 +266,7 @@ namespace RozpoznawaniePisma
                 graphic.DrawEllipse(pen, x, y, pen.Width, pen.Width);
             }
             pictureBox.Invalidate();
-            
+
         }
 
         private void clearButton_Click(object sender, EventArgs e)
