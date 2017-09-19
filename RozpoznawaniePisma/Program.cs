@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Windows.Forms;
+using RozpoznawaniePisma;
 
-namespace RozpoznawaniePisma
+namespace DigitRecognize
 {
     static class Program
     {

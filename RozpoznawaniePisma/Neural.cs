@@ -48,7 +48,7 @@ namespace RozpoznawaniePisma
         private void numberOfIteration_Changed(object sender, EventArgs e)
         {
             if (int.TryParse(numberOfIterationTextBox.Text, out int changedNumber))
-                network.maximumIteration = changedNumber;
+                network.MaximumIteration = changedNumber;
             else
                 ShowError("Wystąpił problem przy próbie konwertowania wartości na liczbę.");
         }

@@ -11,6 +11,12 @@ namespace RozpoznawaniePisma
             public double Value;
             public double[] Weights;
         }
+    
+        public struct HiddenLayer
+        {
+            public double Value;
+            public double[] Weights;
+        }
 
         public struct OutputLayer
         {
@@ -22,28 +28,28 @@ namespace RozpoznawaniePisma
         }
 
         private readonly double LEARNING_RATE;
-        public int ImageSize;
         private int InputNumber;
         private int OutputNumber;
+        private int HiddenNumber;
 
         public InputLayer[] InputLayers;
+        public HiddenLayer[] HiddenLayers;
         public OutputLayer[] OutputLayers;
 
         public List<double> Errors;
         public double CurrentError;
 
-        public int currentIteration;
-        public int maximumIteration;
+        public int CurrentIteration;
+        public int MaximumIteration;
 
         public Network()
         {
             //Wpisujemy domyślne wartości
             LEARNING_RATE = 0.2;
-            currentIteration = 0;
-            maximumIteration = 100;
+            CurrentIteration = 0;
+            MaximumIteration = 100;
             CurrentError = 0.0;
             Errors = new List<double>();
-            currentIteration = 0;
         }
 
         private double Activation(double total)
@@ -110,20 +116,20 @@ namespace RozpoznawaniePisma
                 }
 
                 Errors.Add(CurrentError);
-                ++currentIteration;
+                ++CurrentIteration;
             //}
-            //while (currentError > maximumError && currentIteration < maximumIteration);
+            //while (currentError > maximumError && CurrentIteration < MaximumIteration);
 
             //// Jeżeli maksymalny błąd został osiągnięty w mniejszej liczbie iteracji, to nauka sieci zakończyła się pomyślnie.
-            //if (currentIteration <= maximumIteration)
+            //if (CurrentIteration <= MaximumIteration)
             //    return true;
 
             //return false;
 
-            if (currentIteration % 100 == 0 || currentIteration == 0)
+            if (CurrentIteration % 100 == 0 || CurrentIteration == 0)
             {
-                var item = view.Items.Add(currentIteration.ToString());
-                item.SubItems.Add(Errors[currentIteration == 0 ? 0 : currentIteration - 1].ToString("#0.000000"));
+                var item = view.Items.Add(CurrentIteration.ToString());
+                item.SubItems.Add(Errors[CurrentIteration == 0 ? 0 : CurrentIteration - 1].ToString("#0.000000"));
                 view.Refresh();
             }
         }
@@ -147,6 +153,7 @@ namespace RozpoznawaniePisma
             }
         }
 
+        //
         public void Initialize(int inputSize, int outputSize)
         {
             InputNumber = inputSize;
