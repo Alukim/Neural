@@ -44,7 +44,7 @@ namespace RozpoznawaniePisma
 
         public Network()
         {
-            //Wpisujemy domyślne wartości
+            //Let set default values
             LEARNING_RATE = 0.2;
             CurrentIteration = 0;
             MaximumIteration = 100;
@@ -57,11 +57,11 @@ namespace RozpoznawaniePisma
 
         private void CalculateOutput(double[] pattern, string output)
         {
-            // Przepisujemy wejścia do warstwy wejściowej sieci
+            // writing inputs from pattern to input layer
             for (int i = 0; i < pattern.Length; ++i)
                 InputLayers[i].Value = pattern[i];
 
-            // Obliczamy wejście, wyjście, wartość oczekiwaną oraz błąd pierwszej warstwy
+            //Processing input, calculating output, expected value and first layer error
             for(int i = 0; i < OutputNumber; ++i)
             {
                 double total = 0.0;
@@ -136,11 +136,11 @@ namespace RozpoznawaniePisma
 
         public void Recognize(double[] input)
         {
-            // Przpisujemy wejścia do warstwy wejściowej sieci
+            // Write inputs to input layer
             for (int i = 0; i < InputNumber; ++i)
                 InputLayers[i].Value = input[i];
 
-            // Obliczamy wejście, wyjście, wartość oczekiwaną oraz błąd pierwszej warstwy
+            // Calculating inputs sum and output
             for (int i = 0; i < OutputNumber; ++i)
             {
                 double total = 0.0;
@@ -159,12 +159,12 @@ namespace RozpoznawaniePisma
             InputNumber = inputSize;
             OutputNumber = outputSize;
 
-            //Tworzymy tablice z neuronami na wejściu oraz na wyjściu
+            //Creating an array with input and output neurones
             InputLayers = new InputLayer[InputNumber];
             OutputLayers = new OutputLayer[OutputNumber];
 
             var random = new Random();
-            //Inicjalizujemy wagi losowymi wartościami z zakresu 0.01 - 0.02
+            //Initializing weights with random values range from 0.01 to 0.02
             for (int i = 0; i < InputNumber; ++i)
             {
                 InputLayers[i].Weights = new double[OutputNumber];
