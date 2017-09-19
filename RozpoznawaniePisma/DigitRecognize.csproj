@@ -52,7 +52,6 @@
     <Compile Include="Neural.Designer.cs">
       <DependentUpon>Neural.cs</DependentUpon>
     </Compile>
-    <Compile Include="Network.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Neural.resx">

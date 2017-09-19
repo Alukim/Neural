@@ -143,42 +143,6 @@ namespace RozpoznawaniePisma
             }
         }
 
-        private Task<List<TrainingData>> GenerateTrainingData(string filePath)
-        {
-            var image = new Bitmap(filePath);
-            var trainingDataList = new List<TrainingData>();
-            var fileInfo = new FileInfo(filePath);
-            var value = int.Parse(fileInfo.Name.Replace(".jpg", ""));
-
-            const int imageSideSize = 28;
-
-            var columnsCount = (image.Width / imageSideSize) - 1;
-            var rawsCount = image.Height / imageSideSize;
-
-            for(var i = 0; i < rawsCount; ++i)
-            {
-                for (var j = 0; j < columnsCount; ++j)
-                {
-                    var trainingData = new TrainingData(value);
-
-                    for (var x = 0; x < imageSideSize; ++x)
-                    {
-                        for (var y = 0; y < imageSideSize; ++y)
-                        {
-                            var pixel = image.GetPixel((j * imageSideSize) + x, (i * imageSideSize) + y);
-
-                            // Konwertujemy color pixela na odpowiednią wartość input-a. 0.0 - kolor biały; 1.0 - kolor czarny
-                            trainingData.Data.Add((1.0 - (pixel.R / 255.0 + pixel.G / 255.0 + pixel.B / 255.0) / 3.0) < 0.5 ? 0.0 : 1.0);
-                        }
-                    }
-
-                    trainingDataList.Add(trainingData);
-                }
-            }
-
-            return Task.FromResult(trainingDataList);
-        }
-
         private void readPicture_Click(object sender, EventArgs e)
             => fileBrowser.ShowDialog();
 
@@ -273,30 +237,6 @@ namespace RozpoznawaniePisma
         {
             InitializeBitmap();
             pictureBox.Refresh();
-        }
-    }
-
-    internal class TrainingData
-    {
-        public int Value { get; }
-        public List<double> Data { get; set; }
-
-        public TrainingData(int value)
-        {
-            Value = value;
-            Data = new List<double>();
-        }
-    }
-
-    internal class TrainingPackages
-    {
-        public double[][] inputs;
-        public double[][] outputs;
-
-        public TrainingPackages(double[][] inputs, double[][] outputs)
-        {
-            this.inputs = inputs;
-            this.outputs = outputs;
         }
     }
 }
