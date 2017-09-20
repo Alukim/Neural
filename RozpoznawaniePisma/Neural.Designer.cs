@@ -35,6 +35,7 @@
             this.trainingDataView = new System.Windows.Forms.ListView();
             this.iterationColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.errorColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.effectivenessColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.trainButton = new System.Windows.Forms.Button();
             this.iterationLabel = new System.Windows.Forms.Label();
             this.numberOfIterationTextBox = new System.Windows.Forms.TextBox();
@@ -108,7 +109,8 @@
             // 
             this.trainingDataView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.iterationColumn,
-            this.errorColumn});
+            this.errorColumn,
+            this.effectivenessColumn});
             this.trainingDataView.Location = new System.Drawing.Point(4, 124);
             this.trainingDataView.Margin = new System.Windows.Forms.Padding(2);
             this.trainingDataView.Name = "trainingDataView";
@@ -126,6 +128,11 @@
             // 
             this.errorColumn.Text = "Błąd";
             this.errorColumn.Width = 146;
+            // 
+            // effectivenessColumn
+            // 
+            this.effectivenessColumn.Text = "Skuteczność";
+            this.effectivenessColumn.Width = 112;
             // 
             // trainButton
             // 
@@ -311,6 +318,7 @@
         private System.Windows.Forms.RichTextBox recognizeTextBox;
         private System.Windows.Forms.Button clearButton;
         private System.Windows.Forms.Label iterationsNumber;
+        private System.Windows.Forms.ColumnHeader effectivenessColumn;
     }
 }
 

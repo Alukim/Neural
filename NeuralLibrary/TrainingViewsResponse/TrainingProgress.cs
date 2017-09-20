@@ -1,8 +1,8 @@
 ﻿namespace NeuralLibrary.TrainingViewsResponse
 {
-    public class TrainingViewResponse
+    public class TrainingProgress
     {
-        public TrainingViewResponse(int iteration, double error, double effectiveness)
+        public TrainingProgress(int iteration, double error, double effectiveness)
         {
             Iteration = iteration;
             Error = error;

@@ -4,21 +4,33 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static RozpoznawaniePisma.Network;
+using DigitRecognize.Extensions;
+using NeuralLibrary;
+using NeuralLibrary.Datas.Training;
+using NeuralLibrary.Events;
 
 namespace RozpoznawaniePisma
 {
     public partial class Neural : Form
     {
-        private Network network = new Network();
+        private Network network;
         private const float penSize = 5;
         private Pen pen = new Pen(Color.White, penSize);
         private Bitmap bmp;
         private bool isDrawing = false;
+
+        private int maximumIteration;
+
         const int IMAGE_SIZE = 28;
+
+        private double beta;
+        private double learningRate;
+
+        private const int NUMBER_OF_INPUTS = (IMAGE_SIZE * IMAGE_SIZE) + 1;
+        private const int NUMBER_OF_OUTPUTS = 10;
+        private const int NUMBER_OF_HIDDENS = NUMBER_OF_INPUTS / 2;
 
         public Neural()
         {
@@ -49,69 +61,49 @@ namespace RozpoznawaniePisma
         private void numberOfIteration_Changed(object sender, EventArgs e)
         {
             if (int.TryParse(numberOfIterationTextBox.Text, out int changedNumber))
-                network.MaximumIteration = changedNumber;
+                maximumIteration = changedNumber;
             else
                 ShowError("Wystąpił problem przy próbie konwertowania wartości na liczbę.");
         }
 
-        private void trainButton_Click(object sender, EventArgs e)
+        private void UpdateStatus(object sender, TrainProgressEventArgs e)
+        {
+            var item = recogonizeDataView.Items.Add(e.TrainProgress.Iteration.ToString());
+            item.SubItems.Add(e.TrainProgress.Error.ToString("#0.000000"));
+            item.SubItems.Add(e.TrainProgress.Effectiveness.ToString("#0.000000"));
+        }
+
+        private void UpdatePackageStatus(object sender, PackageStatusEventArgs e)
+        {
+            //iterationsNumber.Text = e.PhotoNumber.ToString();
+        }
+
+        private async void trainButton_Click(object sender, EventArgs e)
         {
             try
             {
                 // Pobieramy z wskazanej lokalizacji, wszystkie obrazy typu "jpg"
                 var files = Directory.GetFiles(folderBrowser.SelectedPath, "*.txt");
-                int numberOfPixels = 28 * 28;
-                int numberOfPerceptons = numberOfPixels + 1;
-                int numberOfOutputs = 10;
 
-                network.Initialize(numberOfPerceptons, numberOfOutputs);
+                this.network = new Network(NUMBER_OF_INPUTS, NUMBER_OF_HIDDENS, NUMBER_OF_OUTPUTS);
+                this.network.OnUpdateStatus += new Network.StatusUpdateHandler(UpdateStatus);
+                this.network.OnUpdatePackageStatus += new Network.PackageStatusUpdateHandler(UpdatePackageStatus);
 
-                var trainingData = new List<TrainingPackages>();
+                var trainingDataFromFile = new List<List<TrainingData>>();
+                var trainingData = new List<TrainingData>();
 
-                var photosInFileCount = 4000;
-                var openFiles = new List<StreamReader>();
-                numberOfOutputs = 0;
-
-                foreach (var file in files)
+                foreach(var file in files)
                 {
-                    openFiles.Add(File.OpenText(file));
-
-                    var fileInfo = new FileInfo(files[numberOfOutputs]);
-                    network.OutputLayers[numberOfOutputs].Value = fileInfo.Name.Replace(".txt", "");
-                    ++numberOfOutputs;
+                    trainingDataFromFile.Add(await PrepareDataFromFile(file));
+                }
+                
+                foreach(var data in trainingDataFromFile)
+                {
+                    trainingData.AddRange(data);
                 }
 
-                do
-                {
-                    // Pobieramy dane z obrazów i konwertujemy do tablic o typie double
-                    var inputs = new double[files.Length][];
-                    var outputs = new double[files.Length][];
-
-                    for (int i = 0; i < files.Length; ++i)
-                    {
-                        inputs[i] = new double[numberOfPerceptons];
-
-                        var line = openFiles[i].ReadLine();
-                        var seperatedLine = line.Split(' ');
-
-                        for(int j = 0; j < numberOfPixels; ++j)
-                        {
-                            inputs[i][j] = double.Parse(seperatedLine[j]);
-                        }
-
-                        inputs[i][numberOfPixels] = 1;
-
-                        outputs[i] = new double[files.Length];
-
-                        for (int j = 0; j < files.Length; ++j)
-                            outputs[i][j] = i == j ? 1.0 : 0.0;
-                    }
-
-                    trainingData.Add(new TrainingPackages(inputs, outputs));
-                    --photosInFileCount;
-                } while (photosInFileCount != 0);
-
-                Train(trainingData);
+                trainingData.Shuffle();
+                network.TrainNetwork(new TrainingPackage(maximumIteration, trainingData));
             }
             catch(Exception exc)
             {
@@ -119,28 +111,35 @@ namespace RozpoznawaniePisma
             }
         }
 
-        private void Train(List<TrainingPackages> trainingData)
+        private async Task<List<TrainingData>> PrepareDataFromFile(string fileName)
         {
-            for (int i = 0; i < network.maximumIteration; i++)
+            var trainingDatas = new List<TrainingData>();
+
+            var fileInfo = new FileInfo(fileName);
+            var value = fileInfo.Name.Replace(".txt", "");
+
+            using (var streamReader = new StreamReader(fileName))
             {
-                iterationsNumber.Text = i.ToString();
-
-                network.CurrentError = 0;
-                network.currentIteration = 0;
-
-                foreach (var data in trainingData)
+                while(streamReader.Peek() >= 0)
                 {
-                    // Trenujemy sieć
-                    network.TrainNetwork(data.inputs, data.outputs, trainingDataView);
+                    var inputsList = new List<double>();
+                    var line = await streamReader.ReadLineAsync();
+                    var seperatedLine = line.Split(' ');
+                    var inputs = seperatedLine.Take(seperatedLine.Count() - 1);
 
-                    //if (network.currentIteration % 100 == 0 || network.currentIteration == 0)
-                    //{
-                    //    var item = trainingDataView.Items.Add(network.currentIteration.ToString());
-                    //    item.SubItems.Add(network.Errors[network.currentIteration == 0 ? 0 : network.currentIteration - 1].ToString("#0.000000"));
-                    //    trainingDataView.Refresh();
-                    //}
+                    foreach(var input in inputs)
+                    {
+                        var convertedInput = double.Parse(input);
+                        inputsList.Add(convertedInput);
+                    }
+
+                    inputsList.Add(1);
+
+                    trainingDatas.Add(new TrainingData(value, inputsList));
                 }
             }
+
+            return trainingDatas;
         }
 
         private void readPicture_Click(object sender, EventArgs e)
@@ -148,54 +147,54 @@ namespace RozpoznawaniePisma
 
         private void recognizeButton_Click(object sender, EventArgs e)
         {
-            // Zakładamy, że obrazy są kwadratowe
+            //// Zakładamy, że obrazy są kwadratowe
 
-            var imageSize = pictureBox.Size.Height;
+            //var imageSize = pictureBox.Size.Height;
 
-            // Pobieramy dane z obrazu i przeszktałcamy
+            //// Pobieramy dane z obrazu i przeszktałcamy
 
-            var sample = new double[IMAGE_SIZE * IMAGE_SIZE];
+            //var sample = new double[IMAGE_SIZE * IMAGE_SIZE];
 
-            Bitmap image = (Bitmap)pictureBox.Image;
-            var size = new Size(IMAGE_SIZE, IMAGE_SIZE);
-            var resizedImage = new Bitmap(image, size);
+            //Bitmap image = (Bitmap)pictureBox.Image;
+            //var size = new Size(IMAGE_SIZE, IMAGE_SIZE);
+            //var resizedImage = new Bitmap(image, size);
 
-            for (int x = 0; x < IMAGE_SIZE; ++x)
-            {
-                for (int y = 0; y < IMAGE_SIZE; ++y)
-                {
-                    var pixel = resizedImage.GetPixel(x, y);
+            //for (int x = 0; x < IMAGE_SIZE; ++x)
+            //{
+            //    for (int y = 0; y < IMAGE_SIZE; ++y)
+            //    {
+            //        var pixel = resizedImage.GetPixel(x, y);
 
-                    // Konwertujemy color pixela na odpowiednią wartość input-a. 0.0 - kolor biały; 1.0 - kolor czarny
-                    sample[x * IMAGE_SIZE + y] = (1.0 - (pixel.R / 255.0 + pixel.G / 255.0 + pixel.B / 255.0) / 3.0) < 0.5 ? 0.0 : 1.0;
-                }
-            }
+            //        // Konwertujemy color pixela na odpowiednią wartość input-a. 0.0 - kolor biały; 1.0 - kolor czarny
+            //        sample[x * IMAGE_SIZE + y] = (1.0 - (pixel.R / 255.0 + pixel.G / 255.0 + pixel.B / 255.0) / 3.0) < 0.5 ? 0.0 : 1.0;
+            //    }
+            //}
 
-            network.Recognize(sample);
+            //network.Recognize(sample);
 
-            // Wyświetlamy wartości wyjściowe
+            //// Wyświetlamy wartości wyjściowe
 
-            recogonizeDataView.Items.Clear();
+            //recogonizeDataView.Items.Clear();
 
-            foreach(var output in network.OutputLayers)
-            {
-                var item = recogonizeDataView.Items.Add(output.Value);
-                item.SubItems.Add(output.Output.ToString("#0.000000"));
-            }
+            //foreach(var output in network.OutputLayers)
+            //{
+            //    var item = recogonizeDataView.Items.Add(output.Value);
+            //    item.SubItems.Add(output.Output.ToString("#0.000000"));
+            //}
 
-            var maxValue = network.OutputLayers.Max(x => x.Output);
-            OutputLayer? selectedOutput = null;
+            //var maxValue = network.OutputLayers.Max(x => x.Output);
+            //OutputLayer? selectedOutput = null;
 
-            try
-            {
-                selectedOutput = network.OutputLayers.Single(x => x.Output == maxValue);
-            }
-            catch (Exception exc) { ShowError(exc.Message); }
+            //try
+            //{
+            //    selectedOutput = network.OutputLayers.Single(x => x.Output == maxValue);
+            //}
+            //catch (Exception exc) { ShowError(exc.Message); }
 
-            if (selectedOutput != null)
-                recognizeTextBox.Text = $"Rozpoznano: {selectedOutput.Value.Value}";
-            else
-                recognizeTextBox.Text = $"Nie rozpoznano";
+            //if (selectedOutput != null)
+            //    recognizeTextBox.Text = $"Rozpoznano: {selectedOutput.Value.Value}";
+            //else
+            //    recognizeTextBox.Text = $"Nie rozpoznano";
         }
 
         private void fileSelected(object sender, CancelEventArgs e)
@@ -237,6 +236,11 @@ namespace RozpoznawaniePisma
         {
             InitializeBitmap();
             pictureBox.Refresh();
+        }
+
+        private void iterationsNumber_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

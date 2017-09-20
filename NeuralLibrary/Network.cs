@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using MoreLinq;
 using NeuralLibrary.Datas.OutputLayers;
 using NeuralLibrary.Datas.Training;
+using NeuralLibrary.Events;
 using NeuralLibrary.Layers;
 using NeuralLibrary.Recognize;
+using NeuralLibrary.TrainingViewsResponse;
 
 namespace NeuralLibrary
 {
@@ -15,8 +18,8 @@ namespace NeuralLibrary
         private int numberOfHidden; // number of hidden nodes
         private int numberOfOutput; // number of outputs nodes
 
-        private double Beta = 1.0;
-        private double LearningRate = 0.15;
+        private double Beta;
+        private double LearningRate;
 
         private InputLayer[] Inputs;
         private HiddenLayer[] Hiddens;
@@ -24,11 +27,20 @@ namespace NeuralLibrary
 
         private Random rnd = new Random(0);
 
-        public Network(int numberOfInput, int numberOfHidden, int numberOfOutput, double beta, double learningRate)
+        public delegate void StatusUpdateHandler(object sender, TrainProgressEventArgs e);
+        public event StatusUpdateHandler OnUpdateStatus;
+
+        public delegate void PackageStatusUpdateHandler(object sender, PackageStatusEventArgs e);
+        public event PackageStatusUpdateHandler OnUpdatePackageStatus;
+
+        public Network(int numberOfInput, int numberOfHidden, int numberOfOutput, double beta = 1.0, double learningRate = 0.15)
         {
             this.numberOfInput = numberOfInput;
             this.numberOfHidden = numberOfHidden;
             this.numberOfOutput = numberOfOutput;
+
+            this.Beta = beta;
+            this.LearningRate = learningRate;
 
             InitializeInputs();
             InitializeHiddens();
@@ -85,13 +97,15 @@ namespace NeuralLibrary
             do
             {
                 currentError = 0.0;
-
+                var photoNumber = 0;
                 foreach (var data in datas.Datas)
                 {
                     SetInputs(data.Inputs);
 
                     CalculateHiddenSum();
-                    CalculateOutputSum(data.Value);
+                    CalculateOutputSum();
+
+                    CalculateOutputTargetAndError(data.Value);
 
                     CalculateHiddensError();
                     CalculateInputsError();
@@ -100,38 +114,48 @@ namespace NeuralLibrary
                     HiddenBackPropagation();
 
                     currentError += GetErrors();
+
+                    UpdatePackageStatus(++photoNumber);
                 }
 
                 var effectiveness = TestAndCheckEffectiveness(datas);
-
-                UpdateErrorList(currentIteration, currentError, effectiveness);
+                currentIteration++;
+                UpdateProgress(new TrainingProgress(currentIteration, currentError, effectiveness));
             } while (currentError > maximumError && currentIteration < datas.MaximumIterations);
         }
 
-        public double TestAndCheckEffectiveness(TrainingPackage datas)
+        private double TestAndCheckEffectiveness(TrainingPackage trainingPackage)
         {
+            var recognizeDigitsCount = 0.0;
 
+            foreach(var data in trainingPackage.Datas)
+            {
+                SetInputs(data.Inputs);
+
+                CalculateHiddenSum();
+                CalculateOutputSum();
+
+                var outputsLog = GetOutputs();
+
+                if (outputsLog.MaximumOutput.Value == data.Value)
+                    recognizeDigitsCount++;
+            }
+
+            var effectiveness = recognizeDigitsCount / trainingPackage.Datas.Count();
+            return effectiveness;
         }
 
-        public void Recognize(RecognizeDigit data)
+        public OutputLayerOutputs Recognize(RecognizeDigit data)
         {
             SetInputs(data.Pixels.ToList());
 
             CalculateHiddenSum();
+            CalculateOutputSum();
 
-            for (int i = 0; i < this.numberOfOutput; ++i)
-            {
-                double total = 0.0;
-
-                for (int j = 0; j < this.numberOfHidden; ++j)
-                    total += Hiddens[j].Output * Hiddens[j].Weights[i];
-
-                this.Outputs[i].InputSum = total;
-                this.Outputs[i].Output = ActivateNeuron(total);
-            }
+            return GetOutputs();
         }
 
-        public OutputLayerOutputs GetOutputs()
+        private OutputLayerOutputs GetOutputs()
         {
             var outputs = this.Outputs.Select(x => new OutputLayerOutput(x.Value, x.Output)).ToList();
             var max = outputs.MaxBy(x => x.Output);
@@ -172,7 +196,7 @@ namespace NeuralLibrary
             }
         }
 
-        private void CalculateOutputSum(string output)
+        private void CalculateOutputSum()
         {
             for (int i = 0; i < this.numberOfOutput; ++i)
             {
@@ -183,6 +207,13 @@ namespace NeuralLibrary
 
                 this.Outputs[i].InputSum = total;
                 this.Outputs[i].Output = ActivateNeuron(total);
+            }
+        }
+
+        private void CalculateOutputTargetAndError(string output)
+        {
+            for (int i = 0; i < this.numberOfOutput; ++i)
+            {
                 this.Outputs[i].Target = Outputs[i].Value.CompareTo(output) == 0 ? 1.0 : 0.0;
                 this.Outputs[i].Error = Beta * (Outputs[i].Target - Outputs[i].Output) * Outputs[i].Output * (1 - Outputs[i].Output);
             }
@@ -210,7 +241,7 @@ namespace NeuralLibrary
                 for (int j = 0; j < this.numberOfHidden; ++j)
                     total += Hiddens[j].Error * Inputs[i].Weights[j];
 
-                this.Hiddens[i].Error = Beta * this.Inputs[i].Value * (1 - this.Inputs[i].Value);
+                this.Inputs[i].Error = Beta * this.Inputs[i].Value * (1 - this.Inputs[i].Value);
             }
         }
 
@@ -248,9 +279,18 @@ namespace NeuralLibrary
             return total;
         }
 
-        private void UpdateErrorList(int iteration, double iterationError, double iterationEffectiveness)
+        private void UpdateProgress(TrainingProgress response)
         {
+            if (OnUpdateStatus == null)
+                return;
 
+            var args = new TrainProgressEventArgs(response);
+            OnUpdateStatus(this, args);
+        }
+
+        private void UpdatePackageStatus(int iteration)
+        {
+            Debug.WriteLine($"Iteration: {iteration}");
         }
     }
 }

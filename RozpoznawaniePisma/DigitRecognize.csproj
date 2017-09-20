@@ -45,7 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Errors\ErrorElement.cs" />
+    <Compile Include="Extensions\ListExtensions.cs" />
     <Compile Include="Neural.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -79,6 +79,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NeuralLibrary\NeuralLibrary.csproj">
+      <Project>{4C39C0C3-5842-4AA6-96A7-0B1322E3C032}</Project>
+      <Name>NeuralLibrary</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
