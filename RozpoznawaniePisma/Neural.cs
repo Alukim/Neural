@@ -26,7 +26,7 @@ namespace RozpoznawaniePisma
         const int IMAGE_SIZE = 28;
 
         private double beta = 1.0;
-        private double learningRate = 0.15;
+        private double learningRate = 0.1;
 
         private const int NUMBER_OF_INPUTS = (IMAGE_SIZE * IMAGE_SIZE) + 1;
         private const int NUMBER_OF_OUTPUTS = 10;
@@ -85,7 +85,7 @@ namespace RozpoznawaniePisma
                 // Pobieramy z wskazanej lokalizacji, wszystkie obrazy typu "jpg"
                 var files = Directory.GetFiles(folderBrowser.SelectedPath, "*.txt");
 
-                this.network = new Network(NUMBER_OF_INPUTS, NUMBER_OF_HIDDENS, NUMBER_OF_OUTPUTS, beta, learningRate, trainingDataView, iterationsNumber);
+                this.network = new Network(NUMBER_OF_INPUTS, NUMBER_OF_HIDDENS, NUMBER_OF_OUTPUTS, beta, learningRate);
                 this.network.OnUpdateStatus += new Network.StatusUpdateHandler(UpdateStatus);
                 this.network.OnUpdatePackageStatus += new Network.PackageStatusUpdateHandler(UpdatePackageStatus);
 
@@ -124,7 +124,7 @@ namespace RozpoznawaniePisma
             {
                 //while(streamReader.Peek() >= 0)
                 //{
-                for(int i = 0; i < 200; ++i)
+                for(int i = 0; i < 500; ++i)
                 { 
                     var inputsList = new List<double>();
                     var line = await streamReader.ReadLineAsync();

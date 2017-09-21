@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Windows.Forms;
 using MoreLinq;
 using NeuralLibrary.Datas.OutputLayers;
 using NeuralLibrary.Datas.Training;
@@ -34,10 +33,7 @@ namespace NeuralLibrary
         public delegate void PackageStatusUpdateHandler(object sender, PackageStatusEventArgs e);
         public event PackageStatusUpdateHandler OnUpdatePackageStatus;
 
-        private ListView listView;
-        private Label label;
-
-        public Network(int numberOfInput, int numberOfHidden, int numberOfOutput, double beta, double learningRate, ListView listView, Label label)
+        public Network(int numberOfInput, int numberOfHidden, int numberOfOutput, double beta, double learningRate)
         {
             this.numberOfInput = numberOfInput;
             this.numberOfHidden = numberOfHidden;
@@ -45,9 +41,6 @@ namespace NeuralLibrary
 
             this.Beta = beta;
             this.LearningRate = learningRate;
-
-            this.listView = listView;
-            this.label = label;
 
             InitializeInputs();
             InitializeHiddens();
@@ -64,7 +57,7 @@ namespace NeuralLibrary
 
                 for(int j = 0; j < numberOfHidden; ++j)
                 {
-                    this.Inputs[i].Weights[j] = rnd.Next(-100, 100) / 100.0;
+                    this.Inputs[i].Weights[j] = (rnd.NextDouble() * 2) - 1;
                 }
             }
 
@@ -81,7 +74,7 @@ namespace NeuralLibrary
 
                 for (int j = 0; j < numberOfOutput; ++j)
                 {
-                    this.Hiddens[i].Weights[j] = rnd.Next(-100, 100) / 100.0;
+                    this.Hiddens[i].Weights[j] = (rnd.NextDouble() * 2) - 1;
                 }
             }
 
@@ -109,14 +102,13 @@ namespace NeuralLibrary
             do
             {
                 currentError = 0.0;
-                foreach (var data in datas.Datas)
+                var photo = 1;
+                for (int i = 0; i < datas.Datas.Count(); ++i)
                 {
-                    SetInputs(data.Inputs);
+                    SetInputs(datas.Datas[i].Inputs);
 
                     CalculateHiddenSum();
-                    CalculateOutputSum(data.Value);
-
-                    //CalculateOutputTargetAndError(data.Value);
+                    CalculateOutputSum(datas.Datas[i].Value);
 
                     CalculateHiddensError();
                     CalculateInputsError();
@@ -125,7 +117,7 @@ namespace NeuralLibrary
                     HiddenBackPropagation();
 
                     currentError += GetErrors();
-
+                    UpdatePackageStatus(photo++);
                 }
 
                 currentError /= datas.Datas.Count();
@@ -275,7 +267,7 @@ namespace NeuralLibrary
             {
                 for (int i = 0; i < this.numberOfOutput; ++i)
                 {
-                    Hiddens[j].Weights[i] += LearningRate * (Hiddens[j].Error) * Outputs[i].Output;
+                    Hiddens[j].Weights[i] += LearningRate * (Hiddens[j].Output) * Outputs[i].Error;
                 }
             }
         }
@@ -286,7 +278,7 @@ namespace NeuralLibrary
             {
                 for (int i = 0; i < this.numberOfHidden; ++i)
                 {
-                    Inputs[j].Weights[i] += LearningRate * (Inputs[j].Error) * Hiddens[i].Output;
+                    Inputs[j].Weights[i] += LearningRate * (Inputs[j].Value) * Hiddens[i].Error;
                 }
             }
         }
@@ -315,7 +307,6 @@ namespace NeuralLibrary
         private void UpdatePackageStatus(int iteration)
         {
             Debug.WriteLine($"Iteration: {iteration}");
-            this.label.Text = iteration.ToString();
 
             if (OnUpdatePackageStatus == null)
                 return;
