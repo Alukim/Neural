@@ -27,8 +27,8 @@ namespace NeuralLibrary
 
         private Random rnd = new Random();
 
-        public delegate void StatusUpdateHandler(object sender, TrainProgressEventArgs e);
-        public event StatusUpdateHandler OnUpdateStatus;
+        public delegate void TrainProgressUpdateHandler(object sender, TrainProgressEventArgs e);
+        public event TrainProgressUpdateHandler OnUpdateStatus;
 
         public delegate void PackageStatusUpdateHandler(object sender, PackageStatusEventArgs e);
         public event PackageStatusUpdateHandler OnUpdatePackageStatus;

@@ -13,106 +13,33 @@ using NeuralLibrary.Events;
 
 namespace RozpoznawaniePisma
 {
-    public partial class Neural : Form
+    public partial class Neural
     {
-        private Network network;
-        private const float penSize = 5;
-        private Pen pen = new Pen(Color.White, penSize);
-        private Bitmap bmp;
-        private bool isDrawing = false;
-
-        private int maximumIteration = 1;
-
-        const int IMAGE_SIZE = 28;
-
-        private double beta = 1.0;
-        private double learningRate = 0.1;
+        private double Beta { get; }
+        private double LearningRate { get; }
+        private int MaximumIterations { get; }
 
         private const int NUMBER_OF_INPUTS = (IMAGE_SIZE * IMAGE_SIZE) + 1;
         private const int NUMBER_OF_OUTPUTS = 10;
         private const int NUMBER_OF_HIDDENS = (NUMBER_OF_INPUTS / 2) + 1;
 
-        public Neural()
+        private Network network;
+
+        private ICollection<TrainProgressEventArgs> TrainProgressEvents = new List<TrainProgressEventArgs>();
+
+        private void InitialNetwork()
         {
-            InitializeComponent();
-            InitializeBitmap();
+            this.network = new Network(NUMBER_OF_INPUTS, NUMBER_OF_HIDDENS, NUMBER_OF_OUTPUTS, Beta, LearningRate);
+            this.network.OnUpdateStatus += new Network.TrainProgressUpdateHandler(UpdateTrainView);
+            this.network.OnUpdatePackageStatus += new Network.PackageStatusUpdateHandler(UpdatePackageStatus);
         }
 
-        private void InitializeBitmap()
-        {
-            bmp = new Bitmap(pictureBox.Width, pictureBox.Height);
-            using (Graphics g = Graphics.FromImage(bmp))
-            {
-                g.Clear(Color.Black);
-            }
-            pictureBox.Image = bmp;
-        }
+        private void SaveTrainProgressEvent(object sender, TrainProgressEventArgs e)
+            => TrainProgressEvents.Add(e);
+    }
 
-        private void ShowError(string message)
-            => MessageBox.Show($"{message}\nSpróbuj jeszcze raz.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-        private void selectPathButton_Click(object sender, EventArgs e)
-        {
-            folderBrowser.ShowDialog();
-            pathLabel.Text = $"Ścieżka: {folderBrowser.SelectedPath}";
-            trainButton.Enabled = true;
-        }
-
-        private void numberOfIteration_Changed(object sender, EventArgs e)
-        {
-            if (int.TryParse(numberOfIterationTextBox.Text, out int changedNumber))
-                this.maximumIteration = changedNumber;
-            else
-                ShowError("Wystąpił problem przy próbie konwertowania wartości na liczbę.");
-        }
-
-        private void UpdateStatus(object sender, TrainProgressEventArgs e)
-        {
-            var item = trainingDataView.Items.Add(e.TrainProgress.Iteration.ToString());
-            item.SubItems.Add(e.TrainProgress.Error.ToString("#0.000000"));
-            item.SubItems.Add(e.TrainProgress.Effectiveness.ToString("#0.000000"));
-        }
-
-        private void UpdatePackageStatus(object sender, PackageStatusEventArgs e)
-        {
-            iterationsNumber.Text = e.PhotoNumber.ToString();
-        }
-
-        private async void trainButton_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                // Pobieramy z wskazanej lokalizacji, wszystkie obrazy typu "jpg"
-                var files = Directory.GetFiles(folderBrowser.SelectedPath, "*.txt");
-
-                this.network = new Network(NUMBER_OF_INPUTS, NUMBER_OF_HIDDENS, NUMBER_OF_OUTPUTS, beta, learningRate);
-                this.network.OnUpdateStatus += new Network.StatusUpdateHandler(UpdateStatus);
-                this.network.OnUpdatePackageStatus += new Network.PackageStatusUpdateHandler(UpdatePackageStatus);
-
-                var trainingDataFromFile = new List<List<TrainingData>>();
-                var trainingData = new List<TrainingData>();
-
-                foreach(var file in files)
-                {
-                    trainingDataFromFile.Add(await PrepareDataFromFile(file));
-                }
-                
-                foreach(var data in trainingDataFromFile)
-                {
-                    trainingData.AddRange(data);
-                }
-
-                trainingData.Shuffle();
-                network.TrainNetwork(new TrainingPackage(maximumIteration, trainingData));
-
-                ShowError("DONE. KONIEC NAUCZANIA");
-            }
-            catch(Exception exc)
-            {
-                ShowError($"Błąd przy próbie wgrania i nauczenia sieci.\nExc: {exc.Message}");
-            }
-        }
-
+    public partial class Neural
+    {
         private async Task<List<TrainingData>> PrepareDataFromFile(string fileName)
         {
             var trainingDatas = new List<TrainingData>();
@@ -122,16 +49,14 @@ namespace RozpoznawaniePisma
 
             using (var streamReader = new StreamReader(fileName))
             {
-                //while(streamReader.Peek() >= 0)
-                //{
-                for(int i = 0; i < 500; ++i)
-                { 
+                while (streamReader.Peek() >= 0)
+                {
                     var inputsList = new List<double>();
                     var line = await streamReader.ReadLineAsync();
                     var seperatedLine = line.Split(' ');
                     var inputs = seperatedLine.Take(seperatedLine.Count() - 1);
 
-                    foreach(var input in inputs)
+                    foreach (var input in inputs)
                     {
                         var convertedInput = double.Parse(input);
                         inputsList.Add(convertedInput);
@@ -144,8 +69,144 @@ namespace RozpoznawaniePisma
             return trainingDatas;
         }
 
+        private async Task SaveProgressToFile()
+        {
+
+        }
+    }
+
+    public partial class Neural : Form
+    {
+        public const int IMAGE_SIZE = 28;
+
+        public Neural()
+        {
+            InitializeComponent();
+            InitializeBitmap();
+        }
+
+        private void selectPathButton_Click(object sender, EventArgs e)
+        {
+            folderBrowser.ShowDialog();
+            pathLabel.Text = $"Path: {folderBrowser.SelectedPath}";
+            trainButton.Enabled = true;
+        }
+
+        private void UpdateTrainView(object sender, TrainProgressEventArgs e)
+        {
+            var item = trainingDataView.Items.Add(e.TrainProgress.Iteration.ToString());
+            item.SubItems.Add(e.TrainProgress.Error.ToString("#0.000000"));
+            item.SubItems.Add(e.TrainProgress.Effectiveness.ToString("#0.000000"));
+        }
+
+        private void UpdatePackageStatus(object sender, PackageStatusEventArgs e)
+        {
+            PhotoCount.Text = e.PhotoNumber.ToString();
+        }
+
+        private async void trainButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var files = Directory.GetFiles(folderBrowser.SelectedPath, "*.txt");
+                var trainingData = new List<TrainingData>();
+
+                InitialNetwork();
+
+                foreach(var file in files)
+                {
+                    trainingData.AddRange(await PrepareDataFromFile(file));
+                }
+
+                trainingData.Shuffle();
+                network.TrainNetwork(new TrainingPackage(MaximumIterations, trainingData));
+
+                MessageExtensions.ShowInfo("Training of network ended");
+
+                await Task.Run(() => SaveProgressToFile())
+                    .ContinueWith((x) => MessageExtensions.ShowInfo("Progress saved to file"));
+            }
+            catch(Exception exc)
+            {
+                MessageExtensions.ShowError($"Error in preparing and training network\nExc: {exc.Message}");
+            }
+        }
+
         private void readPicture_Click(object sender, EventArgs e)
             => fileBrowser.ShowDialog();
+
+        private void trackBar1_Scroll(object sender, EventArgs e)
+        {
+        }
+    }
+
+ #region Recognize partial
+
+    public partial class Neural
+    {
+        #region Variables
+
+        private const float penSize = 5;
+        private Pen pen = new Pen(Color.White, penSize);
+        private Bitmap bmp;
+        private bool isDrawing = false;
+
+        #endregion
+
+        #region Events
+
+        private void DrawPoint(int x, int y)
+        {
+            using (Graphics graphic = Graphics.FromImage(pictureBox.Image))
+            {
+                graphic.DrawEllipse(pen, x, y, pen.Width, pen.Width);
+            }
+            pictureBox.Invalidate();
+
+        }
+
+        private void clearButton_Click(object sender, EventArgs e)
+        {
+            InitializeBitmap();
+            pictureBox.Refresh();
+        }
+
+        private void pictureBox_MouseUp(object sender, MouseEventArgs e)
+        {
+            isDrawing = false;
+        }
+
+        private void pictureBox_MouseDown(object sender, MouseEventArgs e)
+        {
+            isDrawing = true;
+            DrawPoint(e.X, e.Y);
+        }
+
+        private void pictureBox_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (isDrawing)
+                DrawPoint(e.X, e.Y);
+        }
+
+        private void fileSelected(object sender, CancelEventArgs e)
+        {
+            var image = new Bitmap(fileBrowser.FileName);
+            pictureBox.Image = new Bitmap(image, new Size(28, 28));
+            pictureBox.ImageLocation = fileBrowser.FileName;
+            recognizeButton.Enabled = true;
+        }
+
+        #endregion
+
+        private void InitializeBitmap()
+        {
+            bmp = new Bitmap(pictureBox.Width, pictureBox.Height);
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                g.Clear(Color.Black);
+            }
+            pictureBox.Image = bmp;
+        }
 
         private void recognizeButton_Click(object sender, EventArgs e)
         {
@@ -198,46 +259,7 @@ namespace RozpoznawaniePisma
             //else
             //    recognizeTextBox.Text = $"Nie rozpoznano";
         }
-
-        private void fileSelected(object sender, CancelEventArgs e)
-        {
-            var image = new Bitmap(fileBrowser.FileName);
-            pictureBox.Image = new Bitmap(image, new Size(112, 112));
-            pictureBox.ImageLocation = fileBrowser.FileName;
-            recognizeButton.Enabled = true;
-        }
-
-        private void pictureBox_MouseUp(object sender, MouseEventArgs e)
-        {
-            isDrawing = false;
-        }
-
-        private void pictureBox_MouseDown(object sender, MouseEventArgs e)
-        {
-            isDrawing = true;
-            DrawPoint(e.X, e.Y);
-        }
-
-        private void pictureBox_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (isDrawing)
-                DrawPoint(e.X, e.Y);
-        }
-
-        private void DrawPoint(int x, int y)
-        {
-            using (Graphics graphic = Graphics.FromImage(pictureBox.Image))
-            {
-                graphic.DrawEllipse(pen, x, y, pen.Width, pen.Width);
-            }
-            pictureBox.Invalidate();
-
-        }
-
-        private void clearButton_Click(object sender, EventArgs e)
-        {
-            InitializeBitmap();
-            pictureBox.Refresh();
-        }
     }
 }
+
+#endregion 

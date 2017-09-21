@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="Datas\OutputLayers\OutputLayerOutput.cs" />
     <Compile Include="Datas\OutputLayers\OutputLayerOutputs.cs" />
+    <Compile Include="Datas\Training\NeuralTrainingParameters.cs" />
     <Compile Include="Datas\Training\TrainingData.cs" />
     <Compile Include="Datas\Training\TrainingPackage.cs" />
     <Compile Include="Events\PackageStatusEventArgs.cs" />
