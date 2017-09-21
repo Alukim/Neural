@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Windows.Forms;
 using MoreLinq;
 using NeuralLibrary.Datas.OutputLayers;
 using NeuralLibrary.Datas.Training;
@@ -25,7 +26,7 @@ namespace NeuralLibrary
         private HiddenLayer[] Hiddens;
         private OutputLayer[] Outputs;
 
-        private Random rnd = new Random(0);
+        private Random rnd = new Random();
 
         public delegate void StatusUpdateHandler(object sender, TrainProgressEventArgs e);
         public event StatusUpdateHandler OnUpdateStatus;
@@ -33,7 +34,10 @@ namespace NeuralLibrary
         public delegate void PackageStatusUpdateHandler(object sender, PackageStatusEventArgs e);
         public event PackageStatusUpdateHandler OnUpdatePackageStatus;
 
-        public Network(int numberOfInput, int numberOfHidden, int numberOfOutput, double beta = 1.0, double learningRate = 0.15)
+        private ListView listView;
+        private Label label;
+
+        public Network(int numberOfInput, int numberOfHidden, int numberOfOutput, double beta, double learningRate, ListView listView, Label label)
         {
             this.numberOfInput = numberOfInput;
             this.numberOfHidden = numberOfHidden;
@@ -41,6 +45,9 @@ namespace NeuralLibrary
 
             this.Beta = beta;
             this.LearningRate = learningRate;
+
+            this.listView = listView;
+            this.label = label;
 
             InitializeInputs();
             InitializeHiddens();
@@ -75,6 +82,9 @@ namespace NeuralLibrary
                     this.Hiddens[i].Weights[j] = rnd.Next(-100, 100) / 100.0;
                 }
             }
+
+            this.Hiddens[numberOfHidden - 1].InputSum = 1;
+            this.Hiddens[numberOfHidden - 1].Output = 1;
         }
 
         private void InitializeOutputs()
@@ -97,15 +107,14 @@ namespace NeuralLibrary
             do
             {
                 currentError = 0.0;
-                var photoNumber = 0;
                 foreach (var data in datas.Datas)
                 {
                     SetInputs(data.Inputs);
 
                     CalculateHiddenSum();
-                    CalculateOutputSum();
+                    CalculateOutputSum(data.Value);
 
-                    CalculateOutputTargetAndError(data.Value);
+                    //CalculateOutputTargetAndError(data.Value);
 
                     CalculateHiddensError();
                     CalculateInputsError();
@@ -115,8 +124,9 @@ namespace NeuralLibrary
 
                     currentError += GetErrors();
 
-                    UpdatePackageStatus(++photoNumber);
                 }
+
+                currentError /= datas.Datas.Count();
 
                 var effectiveness = TestAndCheckEffectiveness(datas);
                 currentIteration++;
@@ -133,8 +143,17 @@ namespace NeuralLibrary
                 SetInputs(data.Inputs);
 
                 CalculateHiddenSum();
-                CalculateOutputSum();
 
+                for (int i = 0; i < this.numberOfOutput; ++i)
+                {
+                    double total = 0.0;
+
+                    for (int j = 0; j < this.numberOfHidden; ++j)
+                        total += this.Hiddens[j].Output * Hiddens[j].Weights[i];
+
+                    this.Outputs[i].InputSum = total;
+                    this.Outputs[i].Output = ActivateNeuron(total);
+                }
                 var outputsLog = GetOutputs();
 
                 if (outputsLog.MaximumOutput.Value == data.Value)
@@ -150,15 +169,25 @@ namespace NeuralLibrary
             SetInputs(data.Pixels.ToList());
 
             CalculateHiddenSum();
-            CalculateOutputSum();
+
+            for (int i = 0; i < this.numberOfOutput; ++i)
+            {
+                double total = 0.0;
+
+                for (int j = 0; j < this.numberOfHidden; ++j)
+                    total += this.Hiddens[j].Output * Hiddens[j].Weights[i];
+
+                this.Outputs[i].InputSum = total;
+                this.Outputs[i].Output = ActivateNeuron(total);
+            }
 
             return GetOutputs();
         }
 
         private OutputLayerOutputs GetOutputs()
         {
-            var outputs = this.Outputs.Select(x => new OutputLayerOutput(x.Value, x.Output)).ToList();
-            var max = outputs.MaxBy(x => x.Output);
+            var outputs = this.Outputs.Select(x => new OutputLayerOutput(x.Value, x.Output)).OrderByDescending(x => x.Output).ToList();
+            var max = outputs.First();
 
             return new OutputLayerOutputs(outputs, max);
         }
@@ -182,11 +211,11 @@ namespace NeuralLibrary
 
         private void CalculateHiddenSum()
         {
-            for(var i = 0; i < this.numberOfHidden; ++i)
+            for(int i = 0; i < this.numberOfHidden - 1; ++i)
             {
-                var total = 0.0;
+                double total = 0.0;
 
-                for(var j = 0; j < this.numberOfInput; ++j)
+                for(int j = 0; j < this.numberOfInput; ++j)
                 {
                     total += this.Inputs[j].Value * Inputs[j].Weights[i];
                 }
@@ -196,24 +225,17 @@ namespace NeuralLibrary
             }
         }
 
-        private void CalculateOutputSum()
+        private void CalculateOutputSum(string output)
         {
             for (int i = 0; i < this.numberOfOutput; ++i)
             {
                 double total = 0.0;
 
                 for (int j = 0; j < this.numberOfHidden; ++j)
-                    total += Hiddens[j].Output * Hiddens[j].Weights[i];
+                    total += this.Hiddens[j].Output * Hiddens[j].Weights[i];
 
                 this.Outputs[i].InputSum = total;
                 this.Outputs[i].Output = ActivateNeuron(total);
-            }
-        }
-
-        private void CalculateOutputTargetAndError(string output)
-        {
-            for (int i = 0; i < this.numberOfOutput; ++i)
-            {
                 this.Outputs[i].Target = Outputs[i].Value.CompareTo(output) == 0 ? 1.0 : 0.0;
                 this.Outputs[i].Error = Beta * (Outputs[i].Target - Outputs[i].Output) * Outputs[i].Output * (1 - Outputs[i].Output);
             }
@@ -228,7 +250,7 @@ namespace NeuralLibrary
                 for (int j = 0; j < this.numberOfOutput; ++j)
                     total += Outputs[j].Error * Hiddens[i].Weights[j];
 
-                this.Hiddens[i].Error = Beta * this.Hiddens[i].Output * (1 - this.Hiddens[i].Output);
+                this.Hiddens[i].Error = total * Beta * this.Hiddens[i].Output * (1 - this.Hiddens[i].Output);
             }
         }
 
@@ -241,7 +263,7 @@ namespace NeuralLibrary
                 for (int j = 0; j < this.numberOfHidden; ++j)
                     total += Hiddens[j].Error * Inputs[i].Weights[j];
 
-                this.Inputs[i].Error = Beta * this.Inputs[i].Value * (1 - this.Inputs[i].Value);
+                this.Inputs[i].Error = total * Beta * this.Inputs[i].Value * (1 - this.Inputs[i].Value);
             }
         }
 
@@ -291,6 +313,13 @@ namespace NeuralLibrary
         private void UpdatePackageStatus(int iteration)
         {
             Debug.WriteLine($"Iteration: {iteration}");
+            this.label.Text = iteration.ToString();
+
+            if (OnUpdatePackageStatus == null)
+                return;
+
+            var args = new PackageStatusEventArgs(iteration);
+            OnUpdatePackageStatus(this, args);
         }
     }
 }
