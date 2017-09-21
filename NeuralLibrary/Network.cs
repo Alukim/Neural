@@ -67,6 +67,8 @@ namespace NeuralLibrary
                     this.Inputs[i].Weights[j] = rnd.Next(-100, 100) / 100.0;
                 }
             }
+
+            this.Inputs[numberOfInput - 1].Value = 1;
         }
 
         private void InitializeHiddens()

@@ -137,8 +137,6 @@ namespace RozpoznawaniePisma
                         inputsList.Add(convertedInput);
                     }
 
-                    inputsList.Add(1);
-
                     trainingDatas.Add(new TrainingData(value, inputsList));
                 }
             }
