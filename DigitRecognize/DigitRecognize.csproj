@@ -63,6 +63,7 @@
   <ItemGroup>
     <Compile Include="Extensions\ListExtensions.cs" />
     <Compile Include="Extensions\MessageExtensions.cs" />
+    <Compile Include="Files\CsvProvider.cs" />
     <Compile Include="Files\FilesProvider.cs" />
     <Compile Include="Neural.cs">
       <SubType>Form</SubType>

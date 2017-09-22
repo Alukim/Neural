@@ -48,6 +48,7 @@
             this.iterationLabel = new System.Windows.Forms.Label();
             this.selectPathButton = new System.Windows.Forms.Button();
             this.recognizePage = new System.Windows.Forms.TabPage();
+            this.recognizeProgressBar = new System.Windows.Forms.ProgressBar();
             this.clearButton = new System.Windows.Forms.Button();
             this.recognizeTextBox = new System.Windows.Forms.RichTextBox();
             this.recognizeButton = new System.Windows.Forms.Button();
@@ -57,7 +58,6 @@
             this.valueHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
             this.fileBrowser = new System.Windows.Forms.OpenFileDialog();
-            this.recognizeProgressBar = new System.Windows.Forms.ProgressBar();
             this.tabMenu.SuspendLayout();
             this.trainingPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.learningRateRatioTrackBar)).BeginInit();
@@ -116,7 +116,7 @@
             // 
             this.trainingProgressBar.Location = new System.Drawing.Point(7, 491);
             this.trainingProgressBar.Name = "trainingProgressBar";
-            this.trainingProgressBar.Size = new System.Drawing.Size(614, 27);
+            this.trainingProgressBar.Size = new System.Drawing.Size(591, 27);
             this.trainingProgressBar.TabIndex = 12;
             // 
             // learningRateRatioTrackBar
@@ -173,7 +173,7 @@
             // 
             this.PhotoCount.AutoSize = true;
             this.PhotoCount.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F);
-            this.PhotoCount.Location = new System.Drawing.Point(575, 450);
+            this.PhotoCount.Location = new System.Drawing.Point(550, 451);
             this.PhotoCount.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.PhotoCount.Name = "PhotoCount";
             this.PhotoCount.Size = new System.Drawing.Size(23, 25);
@@ -273,6 +273,15 @@
             this.recognizePage.Text = "Recognize";
             this.recognizePage.UseVisualStyleBackColor = true;
             // 
+            // recognizeProgressBar
+            // 
+            this.recognizeProgressBar.Location = new System.Drawing.Point(7, 491);
+            this.recognizeProgressBar.Maximum = 12;
+            this.recognizeProgressBar.Name = "recognizeProgressBar";
+            this.recognizeProgressBar.Size = new System.Drawing.Size(614, 32);
+            this.recognizeProgressBar.Step = 1;
+            this.recognizeProgressBar.TabIndex = 11;
+            // 
             // clearButton
             // 
             this.clearButton.Location = new System.Drawing.Point(412, 116);
@@ -343,15 +352,6 @@
             // 
             this.fileBrowser.FileOk += new System.ComponentModel.CancelEventHandler(this.fileSelected);
             // 
-            // recognizeProgressBar
-            // 
-            this.recognizeProgressBar.Location = new System.Drawing.Point(7, 491);
-            this.recognizeProgressBar.Maximum = 12;
-            this.recognizeProgressBar.Name = "recognizeProgressBar";
-            this.recognizeProgressBar.Size = new System.Drawing.Size(614, 32);
-            this.recognizeProgressBar.Step = 1;
-            this.recognizeProgressBar.TabIndex = 11;
-            // 
             // Neural
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -364,6 +364,7 @@
             this.MinimizeBox = false;
             this.Name = "Neural";
             this.Text = "DigitRecognize";
+            this.Load += new System.EventHandler(this.Neural_Load);
             this.tabMenu.ResumeLayout(false);
             this.trainingPage.ResumeLayout(false);
             this.trainingPage.PerformLayout();

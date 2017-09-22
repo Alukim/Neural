@@ -132,7 +132,7 @@ namespace NeuralLibrary
                 currentError /= trainingPackage.TrainingDatas.Count();
                 double effectiveness = TestAndCheckEffectiveness(trainingPackage);
 
-                UpdateProgress(currentIteration++, currentError, effectiveness);
+                UpdateProgress(++currentIteration, currentError, effectiveness);
             } while (currentError > maximumError && currentIteration < this.MaximumIteration);
 
             UpdateTrainStatusEnded(currentIteration <= this.MaximumIteration);
@@ -329,7 +329,7 @@ namespace NeuralLibrary
                 return;
 
             var args = new PackageStatusEventArgs(epochNumber, photoNumber);
-            OnUpdatePackageStatus.Invoke(this, args);
+            OnUpdatePackageStatus(this, args);
         }
 
         private void UpdateTrainStatusEnded(bool successfullyTrained)

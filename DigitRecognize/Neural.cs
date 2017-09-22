@@ -19,9 +19,9 @@ namespace RozpoznawaniePisma
         #region Network
         #region Properties
 
-        private double Beta { get; }
-        private double LearningRate { get; }
-        private int MaximumIterations { get; }
+        private double Beta { get; } = 1;
+        private double LearningRate { get; } = 0.15;
+        private int MaximumIterations { get; } = 2;
 
         private const int NUMBER_OF_INPUTS = (IMAGE_SIZE * IMAGE_SIZE) + 1;
         private const int NUMBER_OF_OUTPUTS = 10;
@@ -37,10 +37,10 @@ namespace RozpoznawaniePisma
         private void InitialNetwork()
         {
             this.network = new Network(NUMBER_OF_INPUTS, NUMBER_OF_HIDDENS, NUMBER_OF_OUTPUTS, MaximumIterations, Beta, LearningRate);
-            this.network.OnUpdateStatus += new Network.TrainProgressUpdateHandler(UpdateTrainView);
-            this.network.OnUpdateStatus += new Network.TrainProgressUpdateHandler(SaveTrainProgressEvent);
-            this.network.OnUpdatePackageStatus += new Network.PackageStatusUpdateHandler(UpdatePackageStatus);
-            this.network.OnTrainingEnded += new Network.TrainingEndedHandler(TrainingEnded);
+            network.OnUpdateStatus += new Network.TrainProgressUpdateHandler(UpdateTrainView);
+            network.OnUpdateStatus += new Network.TrainProgressUpdateHandler(SaveTrainProgressEvent);
+            network.OnUpdatePackageStatus += new Network.PackageStatusUpdateHandler(UpdatePackageStatus);
+            network.OnTrainingEnded += new Network.TrainingEndedHandler(TrainingEnded);
             this.network.OnRecognizeEnded += new Network.RecognizeEndedHandler(RecognizeEnded);
             this.network.OnRecognizeStatusUpdated += new Network.RecognizeStatusUpdatedHanler(RecognizeUpdated);
         }
@@ -71,21 +71,46 @@ namespace RozpoznawaniePisma
 
         private void UpdateTrainView(object sender, TrainProgressEventArgs e)
         {
-            var item = trainingDataView.Items.Add(e.Epoch.ToString());
-            item.SubItems.Add(e.Error.ToString("#0.000000"));
-            item.SubItems.Add($"{e.Effectiveness.ToString("#0.00")} %");
+            if (this.trainingDataView.InvokeRequired)
+            {
+                this.Invoke(new MethodInvoker(delegate ()
+                {
+                    var item = trainingDataView.Items.Add(e.Epoch.ToString());
+                    item.SubItems.Add(e.Error.ToString("#0.000000"));
+                    item.SubItems.Add($"{e.Effectiveness.ToString("#0.00")} %");
+                }));
+            }
+            else
+            {
+                var item = trainingDataView.Items.Add(e.Epoch.ToString());
+                item.SubItems.Add(e.Error.ToString("#0.000000"));
+                item.SubItems.Add($"{e.Effectiveness.ToString("#0.00")} %");
+            }
         }
 
         private void UpdatePackageStatus(object sender, PackageStatusEventArgs e)
         {
-            PhotoCount.Text = e.PhotoNumber.ToString();
+            if(this.PhotoCount.InvokeRequired)
+                this.Invoke(new MethodInvoker(delegate () { PhotoCount.Text = e.PhotoNumber.ToString(); }));
+            else
+                PhotoCount.Text = e.PhotoNumber.ToString();
         }
 
         private void TrainingEnded(object sender, TrainingEndedEventArgs e)
         {
-            MessageExtensions.ShowInfo("Training of network ended");
-            trainButton.Enabled = true;
+            this.Invoke(new MethodInvoker(delegate () {
+                MessageExtensions.ShowInfo("Training of network ended");
+                trainButton.Enabled = true;
+            }));
+
             IsTrained = true;
+
+            Task.Run(() => filesProvider.SaveProgressToFile(MaximumIterations, LearningRate, Beta, TrainProgressEvents));
+        }
+
+        private void UpdateProgressBar(object sender, TrainProgressEventArgs e)
+        {
+
         }
 
         private async void trainButton_Click(object sender, EventArgs e)
@@ -98,16 +123,17 @@ namespace RozpoznawaniePisma
 
                 InitialNetwork();
 
-                foreach(var file in files)
+                foreach (var file in files)
                 {
                     trainingData.AddRange(await filesProvider.PrepareDataFromFile(file));
                 }
 
                 trainingData.Shuffle();
-                network.TrainNetwork(new TrainingPackage(trainingData, trainingData));
 
-                await Task.Run(() => filesProvider.SaveProgressToFile(TrainProgressEvents))
-                    .ContinueWith((x) => MessageExtensions.ShowInfo("Progress saved to file"));
+                await Task.Run(() =>
+                {
+                    network.TrainNetwork(new TrainingPackage(trainingData, trainingData));
+                });
             }
             catch(Exception exc)
             {
@@ -237,5 +263,18 @@ namespace RozpoznawaniePisma
         }
 
         #endregion
+
+        private void Neural_Load(object sender, EventArgs e)
+        {
+            Directory.CreateDirectory($"{Application.StartupPath}/Progresses");
+
+            if (File.Exists($"{Application.StartupPath}/SavedNetwork/Network.txt"))
+                UploadSavedNetwork();
+        }
+
+        private void UploadSavedNetwork()
+        {
+
+        }
     }
 }
