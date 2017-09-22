@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using DigitRecognize.Extensions;
@@ -11,6 +10,7 @@ using DigitRecognize.Files;
 using NeuralLibrary;
 using NeuralLibrary.Datas.Training;
 using NeuralLibrary.Events;
+using NeuralLibrary.Recognize;
 
 namespace RozpoznawaniePisma
 {
@@ -31,14 +31,18 @@ namespace RozpoznawaniePisma
 
         private ICollection<TrainProgressEventArgs> TrainProgressEvents = new List<TrainProgressEventArgs>();
 
+        private bool IsTrained = false;
         #endregion
 
         private void InitialNetwork()
         {
-            this.network = new Network(NUMBER_OF_INPUTS, NUMBER_OF_HIDDENS, NUMBER_OF_OUTPUTS, Beta, LearningRate);
+            this.network = new Network(NUMBER_OF_INPUTS, NUMBER_OF_HIDDENS, NUMBER_OF_OUTPUTS, MaximumIterations, Beta, LearningRate);
             this.network.OnUpdateStatus += new Network.TrainProgressUpdateHandler(UpdateTrainView);
             this.network.OnUpdateStatus += new Network.TrainProgressUpdateHandler(SaveTrainProgressEvent);
             this.network.OnUpdatePackageStatus += new Network.PackageStatusUpdateHandler(UpdatePackageStatus);
+            this.network.OnTrainingEnded += new Network.TrainingEndedHandler(TrainingEnded);
+            this.network.OnRecognizeEnded += new Network.RecognizeEndedHandler(RecognizeEnded);
+            this.network.OnRecognizeStatusUpdated += new Network.RecognizeStatusUpdatedHanler(RecognizeUpdated);
         }
 
         private void SaveTrainProgressEvent(object sender, TrainProgressEventArgs e)
@@ -67,9 +71,9 @@ namespace RozpoznawaniePisma
 
         private void UpdateTrainView(object sender, TrainProgressEventArgs e)
         {
-            var item = trainingDataView.Items.Add(e.TrainProgress.Iteration.ToString());
-            item.SubItems.Add(e.TrainProgress.Error.ToString("#0.000000"));
-            item.SubItems.Add(e.TrainProgress.Effectiveness.ToString("#0.000000"));
+            var item = trainingDataView.Items.Add(e.Epoch.ToString());
+            item.SubItems.Add(e.Error.ToString("#0.000000"));
+            item.SubItems.Add($"{e.Effectiveness.ToString("#0.00")} %");
         }
 
         private void UpdatePackageStatus(object sender, PackageStatusEventArgs e)
@@ -77,8 +81,16 @@ namespace RozpoznawaniePisma
             PhotoCount.Text = e.PhotoNumber.ToString();
         }
 
+        private void TrainingEnded(object sender, TrainingEndedEventArgs e)
+        {
+            MessageExtensions.ShowInfo("Training of network ended");
+            trainButton.Enabled = true;
+            IsTrained = true;
+        }
+
         private async void trainButton_Click(object sender, EventArgs e)
         {
+            trainButton.Enabled = false;
             try
             {
                 var files = Directory.GetFiles(folderBrowser.SelectedPath, "*.txt");
@@ -92,9 +104,7 @@ namespace RozpoznawaniePisma
                 }
 
                 trainingData.Shuffle();
-                network.TrainNetwork(new TrainingPackage(MaximumIterations, trainingData));
-
-                MessageExtensions.ShowInfo("Training of network ended");
+                network.TrainNetwork(new TrainingPackage(trainingData, trainingData));
 
                 await Task.Run(() => filesProvider.SaveProgressToFile(TrainProgressEvents))
                     .ContinueWith((x) => MessageExtensions.ShowInfo("Progress saved to file"));
@@ -180,56 +190,50 @@ namespace RozpoznawaniePisma
             pictureBox.Image = bmp;
         }
 
+        private void RecognizeEnded(object sender, RecognizeEndedEventArgs e)
+        {
+            foreach(var outputs in e.OutputInfo.Outputs)
+            {
+                var item = recogonizeDataView.Items.Add(outputs.Value);
+                item.SubItems.Add(outputs.Output.ToString("#0.000000"));
+            }
+
+            recognizeTextBox.Text = $"Founded: {e.OutputInfo.MaximumOutput.Value}";
+
+            MessageExtensions.ShowInfo($"Recognize ended");
+        }
+
+        private void RecognizeUpdated(object sender, RecognizeStatusUpdatedEventArgs e)
+        {
+            recognizeProgressBar.PerformStep();
+        }
+
         private void recognizeButton_Click(object sender, EventArgs e)
         {
-            //// Zakładamy, że obrazy są kwadratowe
+            if(IsTrained)
+            {
+                MessageExtensions.ShowError("First, train your network");
+                return;
+            }
 
-            //var imageSize = pictureBox.Size.Height;
+            // Get data from picture and convert to bit array
 
-            //// Pobieramy dane z obrazu i przeszktałcamy
+            var sample = new double[IMAGE_SIZE * IMAGE_SIZE];
 
-            //var sample = new double[IMAGE_SIZE * IMAGE_SIZE];
+            var size = new Size(IMAGE_SIZE, IMAGE_SIZE);
+            var resizedImage = new Bitmap(pictureBox.Image, size);
 
-            //Bitmap image = (Bitmap)pictureBox.Image;
-            //var size = new Size(IMAGE_SIZE, IMAGE_SIZE);
-            //var resizedImage = new Bitmap(image, size);
+            for (int x = 0; x < IMAGE_SIZE; ++x)
+            {
+                for (int y = 0; y < IMAGE_SIZE; ++y)
+                {
+                    var pixel = resizedImage.GetPixel(x, y);
 
-            //for (int x = 0; x < IMAGE_SIZE; ++x)
-            //{
-            //    for (int y = 0; y < IMAGE_SIZE; ++y)
-            //    {
-            //        var pixel = resizedImage.GetPixel(x, y);
-
-            //        // Konwertujemy color pixela na odpowiednią wartość input-a. 0.0 - kolor biały; 1.0 - kolor czarny
-            //        sample[x * IMAGE_SIZE + y] = (1.0 - (pixel.R / 255.0 + pixel.G / 255.0 + pixel.B / 255.0) / 3.0) < 0.5 ? 0.0 : 1.0;
-            //    }
-            //}
-
-            //network.Recognize(sample);
-
-            //// Wyświetlamy wartości wyjściowe
-
-            //recogonizeDataView.Items.Clear();
-
-            //foreach(var output in network.OutputLayers)
-            //{
-            //    var item = recogonizeDataView.Items.Add(output.Value);
-            //    item.SubItems.Add(output.Output.ToString("#0.000000"));
-            //}
-
-            //var maxValue = network.OutputLayers.Max(x => x.Output);
-            //OutputLayer? selectedOutput = null;
-
-            //try
-            //{
-            //    selectedOutput = network.OutputLayers.Single(x => x.Output == maxValue);
-            //}
-            //catch (Exception exc) { ShowError(exc.Message); }
-
-            //if (selectedOutput != null)
-            //    recognizeTextBox.Text = $"Rozpoznano: {selectedOutput.Value.Value}";
-            //else
-            //    recognizeTextBox.Text = $"Nie rozpoznano";
+                    // Convert color to pixel
+                    sample[x * IMAGE_SIZE + y] = (1.0 - (pixel.R / 255.0 + pixel.G / 255.0 + pixel.B / 255.0) / 3.0) < 0.5 ? 0.0 : 1.0;
+                }
+            }
+            network.Recognize(new RecognizeDigit(sample));
         }
 
         #endregion

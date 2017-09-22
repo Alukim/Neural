@@ -72,6 +72,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Neural.aa-DJ.resx">
+      <DependentUpon>Neural.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Neural.resx">
       <DependentUpon>Neural.cs</DependentUpon>
     </EmbeddedResource>

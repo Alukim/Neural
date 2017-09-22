@@ -1,17 +1,18 @@
 ﻿using System.Collections.Generic;
+using NeuralLibrary.Recognize;
 
 namespace NeuralLibrary.Datas.Training
 {
     public class TrainingPackage
     {
-        public int MaximumIterations { get; private set; }
+        public List<TrainingData> RecognizeTrainigData { get; private set; }
 
-        public List<TrainingData> Datas { get; private set; }
+        public List<TrainingData> TrainingDatas { get; private set; }
 
-        public TrainingPackage(int maximumIterations, List<TrainingData> datas)
+        public TrainingPackage(List<TrainingData> trainingDatas, List<TrainingData> recognizeTrainigData)
         {
-            MaximumIterations = maximumIterations;
-            Datas = datas;
+            TrainingDatas = trainingDatas;
+            RecognizeTrainigData = recognizeTrainigData;
         }
     }
 }

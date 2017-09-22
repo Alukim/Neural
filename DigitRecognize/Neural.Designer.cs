@@ -51,13 +51,13 @@
             this.clearButton = new System.Windows.Forms.Button();
             this.recognizeTextBox = new System.Windows.Forms.RichTextBox();
             this.recognizeButton = new System.Windows.Forms.Button();
-            this.readPicture = new System.Windows.Forms.Button();
             this.pictureBox = new System.Windows.Forms.PictureBox();
             this.recogonizeDataView = new System.Windows.Forms.ListView();
             this.exitNeuralHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.valueHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
             this.fileBrowser = new System.Windows.Forms.OpenFileDialog();
+            this.recognizeProgressBar = new System.Windows.Forms.ProgressBar();
             this.tabMenu.SuspendLayout();
             this.trainingPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.learningRateRatioTrackBar)).BeginInit();
@@ -104,7 +104,7 @@
             // PhotoCountLabel
             // 
             this.PhotoCountLabel.AutoSize = true;
-            this.PhotoCountLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.PhotoCountLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
             this.PhotoCountLabel.Location = new System.Drawing.Point(359, 452);
             this.PhotoCountLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.PhotoCountLabel.Name = "PhotoCountLabel";
@@ -131,7 +131,7 @@
             // learningRateRatio
             // 
             this.learningRateRatio.AutoSize = true;
-            this.learningRateRatio.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.learningRateRatio.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
             this.learningRateRatio.Location = new System.Drawing.Point(434, 258);
             this.learningRateRatio.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.learningRateRatio.Name = "learningRateRatio";
@@ -151,7 +151,7 @@
             // betaRatio
             // 
             this.betaRatio.AutoSize = true;
-            this.betaRatio.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.betaRatio.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
             this.betaRatio.Location = new System.Drawing.Point(461, 158);
             this.betaRatio.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.betaRatio.Name = "betaRatio";
@@ -172,7 +172,7 @@
             // PhotoCount
             // 
             this.PhotoCount.AutoSize = true;
-            this.PhotoCount.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.PhotoCount.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F);
             this.PhotoCount.Location = new System.Drawing.Point(575, 450);
             this.PhotoCount.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.PhotoCount.Name = "PhotoCount";
@@ -183,7 +183,7 @@
             // pathLabel
             // 
             this.pathLabel.AutoSize = true;
-            this.pathLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.pathLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
             this.pathLabel.Location = new System.Drawing.Point(5, 13);
             this.pathLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.pathLabel.Name = "pathLabel";
@@ -207,24 +207,24 @@
             // 
             // iterationColumn
             // 
-            this.iterationColumn.Text = "Iteracja";
+            this.iterationColumn.Text = "Iteration";
             this.iterationColumn.Width = 97;
             // 
             // errorColumn
             // 
-            this.errorColumn.Text = "Błąd";
+            this.errorColumn.Text = "Error";
             this.errorColumn.Width = 118;
             // 
             // effectivenessColumn
             // 
-            this.effectivenessColumn.Text = "Skuteczność";
+            this.effectivenessColumn.Text = "Effectivenes";
             this.effectivenessColumn.Width = 116;
             // 
             // trainButton
             // 
             this.trainButton.AutoSize = true;
             this.trainButton.Enabled = false;
-            this.trainButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.trainButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F);
             this.trainButton.Location = new System.Drawing.Point(387, 356);
             this.trainButton.Margin = new System.Windows.Forms.Padding(2);
             this.trainButton.Name = "trainButton";
@@ -237,7 +237,7 @@
             // iterationLabel
             // 
             this.iterationLabel.AutoSize = true;
-            this.iterationLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.iterationLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
             this.iterationLabel.Location = new System.Drawing.Point(426, 57);
             this.iterationLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.iterationLabel.Name = "iterationLabel";
@@ -258,10 +258,10 @@
             // 
             // recognizePage
             // 
+            this.recognizePage.Controls.Add(this.recognizeProgressBar);
             this.recognizePage.Controls.Add(this.clearButton);
             this.recognizePage.Controls.Add(this.recognizeTextBox);
             this.recognizePage.Controls.Add(this.recognizeButton);
-            this.recognizePage.Controls.Add(this.readPicture);
             this.recognizePage.Controls.Add(this.pictureBox);
             this.recognizePage.Controls.Add(this.recogonizeDataView);
             this.recognizePage.Location = new System.Drawing.Point(4, 22);
@@ -280,7 +280,7 @@
             this.clearButton.Name = "clearButton";
             this.clearButton.Size = new System.Drawing.Size(70, 24);
             this.clearButton.TabIndex = 10;
-            this.clearButton.Text = "Wyczyść";
+            this.clearButton.Text = "Clear";
             this.clearButton.UseVisualStyleBackColor = true;
             this.clearButton.Click += new System.EventHandler(this.clearButton_Click);
             // 
@@ -300,20 +300,9 @@
             this.recognizeButton.Name = "recognizeButton";
             this.recognizeButton.Size = new System.Drawing.Size(70, 24);
             this.recognizeButton.TabIndex = 8;
-            this.recognizeButton.Text = "Rozpoznaj";
+            this.recognizeButton.Text = "Recognize";
             this.recognizeButton.UseVisualStyleBackColor = true;
             this.recognizeButton.Click += new System.EventHandler(this.recognizeButton_Click);
-            // 
-            // readPicture
-            // 
-            this.readPicture.Location = new System.Drawing.Point(412, 53);
-            this.readPicture.Margin = new System.Windows.Forms.Padding(2);
-            this.readPicture.Name = "readPicture";
-            this.readPicture.Size = new System.Drawing.Size(70, 24);
-            this.readPicture.TabIndex = 7;
-            this.readPicture.Text = "Wczytaj obraz";
-            this.readPicture.UseVisualStyleBackColor = true;
-            this.readPicture.Click += new System.EventHandler(this.readPicture_Click);
             // 
             // pictureBox
             // 
@@ -335,24 +324,33 @@
             this.recogonizeDataView.Location = new System.Drawing.Point(2, 271);
             this.recogonizeDataView.Margin = new System.Windows.Forms.Padding(2);
             this.recogonizeDataView.Name = "recogonizeDataView";
-            this.recogonizeDataView.Size = new System.Drawing.Size(628, 240);
+            this.recogonizeDataView.Size = new System.Drawing.Size(628, 207);
             this.recogonizeDataView.TabIndex = 5;
             this.recogonizeDataView.UseCompatibleStateImageBehavior = false;
             this.recogonizeDataView.View = System.Windows.Forms.View.Details;
             // 
             // exitNeuralHeader
             // 
-            this.exitNeuralHeader.Text = "Neuron wyjściowy";
+            this.exitNeuralHeader.Text = "Value";
             this.exitNeuralHeader.Width = 155;
             // 
             // valueHeader
             // 
-            this.valueHeader.Text = "Wartość";
+            this.valueHeader.Text = "Output";
             this.valueHeader.Width = 146;
             // 
             // fileBrowser
             // 
             this.fileBrowser.FileOk += new System.ComponentModel.CancelEventHandler(this.fileSelected);
+            // 
+            // recognizeProgressBar
+            // 
+            this.recognizeProgressBar.Location = new System.Drawing.Point(7, 491);
+            this.recognizeProgressBar.Maximum = 12;
+            this.recognizeProgressBar.Name = "recognizeProgressBar";
+            this.recognizeProgressBar.Size = new System.Drawing.Size(614, 32);
+            this.recognizeProgressBar.Step = 1;
+            this.recognizeProgressBar.TabIndex = 11;
             // 
             // Neural
             // 
@@ -362,6 +360,8 @@
             this.Controls.Add(this.tabMenu);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(2);
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "Neural";
             this.Text = "DigitRecognize";
             this.tabMenu.ResumeLayout(false);
@@ -390,7 +390,6 @@
         private System.Windows.Forms.ColumnHeader iterationColumn;
         private System.Windows.Forms.ColumnHeader errorColumn;
         private System.Windows.Forms.Button recognizeButton;
-        private System.Windows.Forms.Button readPicture;
         private System.Windows.Forms.PictureBox pictureBox;
         private System.Windows.Forms.ListView recogonizeDataView;
         private System.Windows.Forms.ColumnHeader exitNeuralHeader;
@@ -407,6 +406,7 @@
         private System.Windows.Forms.Label learningRateRatio;
         private System.Windows.Forms.TrackBar betaRatioTrackBar;
         private System.Windows.Forms.Label betaRatio;
+        private System.Windows.Forms.ProgressBar recognizeProgressBar;
     }
 }
 

@@ -1,15 +1,20 @@
 ﻿using System;
-using NeuralLibrary.TrainingViewsResponse;
 
 namespace NeuralLibrary.Events
 {
     public class TrainProgressEventArgs : EventArgs
     {
-        public TrainingProgress TrainProgress { get; private set; }
-
-        public TrainProgressEventArgs(TrainingProgress trainProgress)
+        public TrainProgressEventArgs(int epoch, double error, double effectiveness)
         {
-            this.TrainProgress = trainProgress;
+            Epoch = epoch;
+            Error = error;
+            Effectiveness = effectiveness;
         }
+
+        public int Epoch { get; private set; }
+
+        public double Error { get; private set; }
+
+        public double Effectiveness { get; private set; }
     }
 }

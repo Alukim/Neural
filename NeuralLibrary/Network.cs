@@ -7,7 +7,6 @@ using NeuralLibrary.Datas.Training;
 using NeuralLibrary.Events;
 using NeuralLibrary.Layers;
 using NeuralLibrary.Recognize;
-using NeuralLibrary.TrainingViewsResponse;
 
 namespace NeuralLibrary
 {
@@ -17,6 +16,7 @@ namespace NeuralLibrary
         private int numberOfHidden; // number of hidden nodes
         private int numberOfOutput; // number of outputs nodes
 
+        private double MaximumIteration;
         private double Beta;
         private double LearningRate;
 
@@ -32,12 +32,22 @@ namespace NeuralLibrary
         public delegate void PackageStatusUpdateHandler(object sender, PackageStatusEventArgs e);
         public event PackageStatusUpdateHandler OnUpdatePackageStatus;
 
-        public Network(int numberOfInput, int numberOfHidden, int numberOfOutput, double beta, double learningRate)
+        public delegate void TrainingEndedHandler(object sender, TrainingEndedEventArgs e);
+        public event TrainingEndedHandler OnTrainingEnded;
+
+        public delegate void RecognizeEndedHandler(object sender, RecognizeEndedEventArgs e);
+        public event RecognizeEndedHandler OnRecognizeEnded;
+
+        public delegate void RecognizeStatusUpdatedHanler(object sender, RecognizeStatusUpdatedEventArgs e);
+        public event RecognizeStatusUpdatedHanler OnRecognizeStatusUpdated;
+
+        public Network(int numberOfInput, int numberOfHidden, int numberOfOutput, int maximumIteration, double beta, double learningRate)
         {
             this.numberOfInput = numberOfInput;
             this.numberOfHidden = numberOfHidden;
             this.numberOfOutput = numberOfOutput;
 
+            this.MaximumIteration = maximumIteration;
             this.Beta = beta;
             this.LearningRate = learningRate;
 
@@ -91,23 +101,23 @@ namespace NeuralLibrary
             }
         }
 
-        public void TrainNetwork(TrainingPackage datas)
+        public void TrainNetwork(TrainingPackage trainingPackage)
         {
-            var currentError = 0.0;
-            var maximumError = 0.0;
+            double currentError = 0.0;
+            double maximumError = 0.0;
 
-            var currentIteration = 0;
+            int currentIteration = 0;
 
             do
             {
                 currentError = 0.0;
-                var photo = 1;
-                for (int i = 0; i < datas.Datas.Count(); ++i)
+                int photoInEpoch = 1;
+                for (int i = 0; i < trainingPackage.TrainingDatas.Count(); ++i)
                 {
-                    SetInputs(datas.Datas[i].Inputs);
+                    SetInputs(trainingPackage.TrainingDatas[i].Inputs);
 
                     CalculateHiddenSum();
-                    CalculateOutputSum(datas.Datas[i].Value);
+                    CalculateOutputSum(trainingPackage.TrainingDatas[i].Value);
 
                     CalculateHiddensError();
                     CalculateInputsError();
@@ -116,22 +126,24 @@ namespace NeuralLibrary
                     HiddenBackPropagation();
 
                     currentError += GetErrors();
-                    UpdatePackageStatus(photo++);
+                    UpdatePackageStatus(currentIteration, photoInEpoch++);
                 }
 
-                currentError /= datas.Datas.Count();
+                currentError /= trainingPackage.TrainingDatas.Count();
+                double effectiveness = TestAndCheckEffectiveness(trainingPackage);
 
-                var effectiveness = TestAndCheckEffectiveness(datas);
-                currentIteration++;
-                UpdateProgress(new TrainingProgress(currentIteration, currentError, effectiveness));
-            } while (currentError > maximumError && currentIteration < datas.MaximumIterations);
+                UpdateProgress(currentIteration++, currentError, effectiveness);
+            } while (currentError > maximumError && currentIteration < this.MaximumIteration);
+
+            UpdateTrainStatusEnded(currentIteration <= this.MaximumIteration);
         }
 
         private double TestAndCheckEffectiveness(TrainingPackage trainingPackage)
         {
-            var recognizeDigitsCount = 0.0;
+            double recognizeDigitsCount = 0.0;
+            var datas = trainingPackage.RecognizeTrainigData;
 
-            foreach(var data in trainingPackage.Datas)
+            foreach(var data in datas)
             {
                 SetInputs(data.Inputs);
 
@@ -153,14 +165,16 @@ namespace NeuralLibrary
                     recognizeDigitsCount++;
             }
 
-            var effectiveness = recognizeDigitsCount / trainingPackage.Datas.Count();
-            return effectiveness;
+            return (recognizeDigitsCount / datas.Count()) * 100;
         }
 
-        public OutputLayerOutputs Recognize(RecognizeDigit data)
+        public void Recognize(RecognizeDigit data)
         {
+            int step = 1;
+            RecognizeStatusUpdated(step++);
             SetInputs(data.Pixels.ToList());
 
+            RecognizeStatusUpdated(step++);
             CalculateHiddenSum();
 
             for (int i = 0; i < this.numberOfOutput; ++i)
@@ -172,9 +186,11 @@ namespace NeuralLibrary
 
                 this.Outputs[i].InputSum = total;
                 this.Outputs[i].Output = ActivateNeuron(total);
+
+                RecognizeStatusUpdated(step++);
             }
 
-            return GetOutputs();
+            RecognizeEnded(GetOutputs());
         }
 
         private OutputLayerOutputs GetOutputs()
@@ -196,7 +212,7 @@ namespace NeuralLibrary
 
         private void SetInputs(IList<double> inputs)
         {
-            for (var i = 0; i < inputs.Count(); ++i)
+            for (int i = 0; i < inputs.Count(); ++i)
             {
                 this.Inputs[i].Value = inputs[i];
             }
@@ -294,24 +310,59 @@ namespace NeuralLibrary
             return total;
         }
 
-        private void UpdateProgress(TrainingProgress response)
+        private void UpdateProgress(int epoch, double error, double effectiveness)
         {
+            Debug.WriteLine($"Epoch: {epoch} | Error: {error} | Effectiveness: {effectiveness}");
+
             if (OnUpdateStatus == null)
                 return;
 
-            var args = new TrainProgressEventArgs(response);
-            OnUpdateStatus(this, args);
+            var args = new TrainProgressEventArgs(epoch, error, effectiveness);
+            OnUpdateStatus.Invoke(this, args);
         }
 
-        private void UpdatePackageStatus(int iteration)
+        private void UpdatePackageStatus(int epochNumber, int photoNumber)
         {
-            Debug.WriteLine($"Iteration: {iteration}");
+            Debug.WriteLine($"Epoch: {epochNumber} | Photo number: {photoNumber}");
 
             if (OnUpdatePackageStatus == null)
                 return;
 
-            var args = new PackageStatusEventArgs(iteration);
-            OnUpdatePackageStatus(this, args);
+            var args = new PackageStatusEventArgs(epochNumber, photoNumber);
+            OnUpdatePackageStatus.Invoke(this, args);
+        }
+
+        private void UpdateTrainStatusEnded(bool successfullyTrained)
+        {
+            Debug.WriteLine($"Training ended. Successfully trained: {successfullyTrained}");
+
+            if (OnTrainingEnded == null)
+                return;
+
+            var args = new TrainingEndedEventArgs(successfullyTrained);
+            OnTrainingEnded.Invoke(this, args);
+        }
+
+        private void RecognizeEnded(OutputLayerOutputs outputInfo)
+        {
+            Debug.WriteLine($"Founded: {outputInfo.MaximumOutput.Value} | Output: {outputInfo.MaximumOutput.Output}");
+
+            if (OnRecognizeEnded == null)
+                return;
+
+            var args = new RecognizeEndedEventArgs(outputInfo);
+            OnRecognizeEnded.Invoke(this, args);
+        }
+
+        private void RecognizeStatusUpdated(int step)
+        {
+            Debug.WriteLine($"Recognize step number: {step}");
+
+            if (OnRecognizeStatusUpdated == null)
+                return;
+
+            var args = new RecognizeStatusUpdatedEventArgs(step);
+            OnRecognizeStatusUpdated.Invoke(this, args);
         }
     }
 }

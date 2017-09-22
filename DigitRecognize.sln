@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26430.15
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DigitRecognize", "RozpoznawaniePisma\DigitRecognize.csproj", "{8C17A320-BA3C-4D65-9D84-76C12950D958}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DigitRecognize", "DigitRecognize\DigitRecognize.csproj", "{8C17A320-BA3C-4D65-9D84-76C12950D958}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeuralLibrary", "NeuralLibrary\NeuralLibrary.csproj", "{4C39C0C3-5842-4AA6-96A7-0B1322E3C032}"
 EndProject
