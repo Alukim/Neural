@@ -21,7 +21,7 @@ namespace RozpoznawaniePisma
 
         private double Beta { get; } = 1;
         private double LearningRate { get; } = 0.15;
-        private int MaximumIterations { get; } = 2;
+        private int MaximumIterations => iterationTrackBar.Value;
 
         private const int NUMBER_OF_INPUTS = (IMAGE_SIZE * IMAGE_SIZE) + 1;
         private const int NUMBER_OF_OUTPUTS = 10;
@@ -110,7 +110,7 @@ namespace RozpoznawaniePisma
 
         private void UpdateProgressBar(object sender, TrainProgressEventArgs e)
         {
-
+            
         }
 
         private async void trainButton_Click(object sender, EventArgs e)
@@ -236,7 +236,7 @@ namespace RozpoznawaniePisma
 
         private void recognizeButton_Click(object sender, EventArgs e)
         {
-            if(IsTrained)
+            if(!IsTrained)
             {
                 MessageExtensions.ShowError("First, train your network");
                 return;

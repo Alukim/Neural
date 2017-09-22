@@ -162,6 +162,7 @@
             // iterationTrackBar
             // 
             this.iterationTrackBar.Location = new System.Drawing.Point(357, 77);
+            this.iterationTrackBar.Maximum = 100;
             this.iterationTrackBar.Name = "iterationTrackBar";
             this.iterationTrackBar.Size = new System.Drawing.Size(264, 45);
             this.iterationTrackBar.TabIndex = 7;
