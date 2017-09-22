@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using MoreLinq;
 using NeuralLibrary.Datas.OutputLayers;
 using NeuralLibrary.Datas.Training;
 using NeuralLibrary.Events;

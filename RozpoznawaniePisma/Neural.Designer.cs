@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Neural));
             this.tabMenu = new System.Windows.Forms.TabControl();
             this.trainingPage = new System.Windows.Forms.TabPage();
             this.PhotoCountLabel = new System.Windows.Forms.Label();
@@ -97,7 +98,7 @@
             this.trainingPage.Name = "trainingPage";
             this.trainingPage.Size = new System.Drawing.Size(630, 528);
             this.trainingPage.TabIndex = 0;
-            this.trainingPage.Text = "Trenowanie";
+            this.trainingPage.Text = "Training";
             this.trainingPage.UseVisualStyleBackColor = true;
             // 
             // PhotoCountLabel
@@ -107,9 +108,9 @@
             this.PhotoCountLabel.Location = new System.Drawing.Point(359, 452);
             this.PhotoCountLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.PhotoCountLabel.Name = "PhotoCountLabel";
-            this.PhotoCountLabel.Size = new System.Drawing.Size(171, 20);
+            this.PhotoCountLabel.Size = new System.Drawing.Size(193, 20);
             this.PhotoCountLabel.TabIndex = 13;
-            this.PhotoCountLabel.Text = "Które zdjęcie w epoce: ";
+            this.PhotoCountLabel.Text = "Which photo in the epoch:";
             // 
             // trainingProgressBar
             // 
@@ -130,12 +131,13 @@
             // learningRateRatio
             // 
             this.learningRateRatio.AutoSize = true;
-            this.learningRateRatio.Location = new System.Drawing.Point(420, 263);
+            this.learningRateRatio.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.learningRateRatio.Location = new System.Drawing.Point(434, 258);
             this.learningRateRatio.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.learningRateRatio.Name = "learningRateRatio";
-            this.learningRateRatio.Size = new System.Drawing.Size(142, 13);
+            this.learningRateRatio.Size = new System.Drawing.Size(125, 17);
             this.learningRateRatio.TabIndex = 10;
-            this.learningRateRatio.Text = "Współczynnik LearningRate";
+            this.learningRateRatio.Text = "Learning rate ratio";
             // 
             // betaRatioTrackBar
             // 
@@ -149,12 +151,13 @@
             // betaRatio
             // 
             this.betaRatio.AutoSize = true;
-            this.betaRatio.Location = new System.Drawing.Point(444, 162);
+            this.betaRatio.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.betaRatio.Location = new System.Drawing.Point(461, 158);
             this.betaRatio.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.betaRatio.Name = "betaRatio";
-            this.betaRatio.Size = new System.Drawing.Size(100, 13);
+            this.betaRatio.Size = new System.Drawing.Size(69, 17);
             this.betaRatio.TabIndex = 8;
-            this.betaRatio.Text = "Współczynnik Beta";
+            this.betaRatio.Text = "Beta ratio";
             // 
             // iterationTrackBar
             // 
@@ -184,9 +187,9 @@
             this.pathLabel.Location = new System.Drawing.Point(5, 13);
             this.pathLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.pathLabel.Name = "pathLabel";
-            this.pathLabel.Size = new System.Drawing.Size(65, 17);
+            this.pathLabel.Size = new System.Drawing.Size(45, 17);
             this.pathLabel.TabIndex = 5;
-            this.pathLabel.Text = "Ścieżka: ";
+            this.pathLabel.Text = "Path: ";
             // 
             // trainingDataView
             // 
@@ -219,25 +222,28 @@
             // 
             // trainButton
             // 
+            this.trainButton.AutoSize = true;
             this.trainButton.Enabled = false;
+            this.trainButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.trainButton.Location = new System.Drawing.Point(387, 356);
             this.trainButton.Margin = new System.Windows.Forms.Padding(2);
             this.trainButton.Name = "trainButton";
             this.trainButton.Size = new System.Drawing.Size(211, 65);
             this.trainButton.TabIndex = 3;
-            this.trainButton.Text = "Trenuj";
+            this.trainButton.Text = "Train";
             this.trainButton.UseVisualStyleBackColor = true;
             this.trainButton.Click += new System.EventHandler(this.trainButton_Click);
             // 
             // iterationLabel
             // 
             this.iterationLabel.AutoSize = true;
-            this.iterationLabel.Location = new System.Drawing.Point(459, 61);
+            this.iterationLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.iterationLabel.Location = new System.Drawing.Point(426, 57);
             this.iterationLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.iterationLabel.Name = "iterationLabel";
-            this.iterationLabel.Size = new System.Drawing.Size(71, 13);
+            this.iterationLabel.Size = new System.Drawing.Size(136, 17);
             this.iterationLabel.TabIndex = 2;
-            this.iterationLabel.Text = "Liczba iteracji";
+            this.iterationLabel.Text = "Number of iterations";
             // 
             // selectPathButton
             // 
@@ -246,7 +252,7 @@
             this.selectPathButton.Name = "selectPathButton";
             this.selectPathButton.Size = new System.Drawing.Size(264, 50);
             this.selectPathButton.TabIndex = 0;
-            this.selectPathButton.Text = "Wybierz ścieżkę z obrazami do nauczania";
+            this.selectPathButton.Text = "Select the path to the image folder";
             this.selectPathButton.UseVisualStyleBackColor = true;
             this.selectPathButton.Click += new System.EventHandler(this.selectPathButton_Click);
             // 
@@ -264,7 +270,7 @@
             this.recognizePage.Padding = new System.Windows.Forms.Padding(2);
             this.recognizePage.Size = new System.Drawing.Size(630, 528);
             this.recognizePage.TabIndex = 1;
-            this.recognizePage.Text = "Rozpoznawanie";
+            this.recognizePage.Text = "Recognize";
             this.recognizePage.UseVisualStyleBackColor = true;
             // 
             // clearButton
@@ -354,9 +360,10 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(639, 557);
             this.Controls.Add(this.tabMenu);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Neural";
-            this.Text = "Form1";
+            this.Text = "DigitRecognize";
             this.tabMenu.ResumeLayout(false);
             this.trainingPage.ResumeLayout(false);
             this.trainingPage.PerformLayout();

@@ -7,14 +7,18 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using DigitRecognize.Extensions;
+using DigitRecognize.Files;
 using NeuralLibrary;
 using NeuralLibrary.Datas.Training;
 using NeuralLibrary.Events;
 
 namespace RozpoznawaniePisma
 {
-    public partial class Neural
+    public partial class Neural : Form
     {
+        #region Network
+        #region Properties
+
         private double Beta { get; }
         private double LearningRate { get; }
         private int MaximumIterations { get; }
@@ -27,62 +31,31 @@ namespace RozpoznawaniePisma
 
         private ICollection<TrainProgressEventArgs> TrainProgressEvents = new List<TrainProgressEventArgs>();
 
+        #endregion
+
         private void InitialNetwork()
         {
             this.network = new Network(NUMBER_OF_INPUTS, NUMBER_OF_HIDDENS, NUMBER_OF_OUTPUTS, Beta, LearningRate);
             this.network.OnUpdateStatus += new Network.TrainProgressUpdateHandler(UpdateTrainView);
+            this.network.OnUpdateStatus += new Network.TrainProgressUpdateHandler(SaveTrainProgressEvent);
             this.network.OnUpdatePackageStatus += new Network.PackageStatusUpdateHandler(UpdatePackageStatus);
         }
 
         private void SaveTrainProgressEvent(object sender, TrainProgressEventArgs e)
             => TrainProgressEvents.Add(e);
-    }
 
-    public partial class Neural
-    {
-        private async Task<List<TrainingData>> PrepareDataFromFile(string fileName)
-        {
-            var trainingDatas = new List<TrainingData>();
+        #endregion
 
-            var fileInfo = new FileInfo(fileName);
-            var value = fileInfo.Name.Replace(".txt", "");
+        #region TrainView
 
-            using (var streamReader = new StreamReader(fileName))
-            {
-                while (streamReader.Peek() >= 0)
-                {
-                    var inputsList = new List<double>();
-                    var line = await streamReader.ReadLineAsync();
-                    var seperatedLine = line.Split(' ');
-                    var inputs = seperatedLine.Take(seperatedLine.Count() - 1);
-
-                    foreach (var input in inputs)
-                    {
-                        var convertedInput = double.Parse(input);
-                        inputsList.Add(convertedInput);
-                    }
-
-                    trainingDatas.Add(new TrainingData(value, inputsList));
-                }
-            }
-
-            return trainingDatas;
-        }
-
-        private async Task SaveProgressToFile()
-        {
-
-        }
-    }
-
-    public partial class Neural : Form
-    {
         public const int IMAGE_SIZE = 28;
+        private FilesProvider filesProvider { get; }
 
         public Neural()
         {
             InitializeComponent();
             InitializeBitmap();
+            filesProvider = new FilesProvider();
         }
 
         private void selectPathButton_Click(object sender, EventArgs e)
@@ -115,7 +88,7 @@ namespace RozpoznawaniePisma
 
                 foreach(var file in files)
                 {
-                    trainingData.AddRange(await PrepareDataFromFile(file));
+                    trainingData.AddRange(await filesProvider.PrepareDataFromFile(file));
                 }
 
                 trainingData.Shuffle();
@@ -123,7 +96,7 @@ namespace RozpoznawaniePisma
 
                 MessageExtensions.ShowInfo("Training of network ended");
 
-                await Task.Run(() => SaveProgressToFile())
+                await Task.Run(() => filesProvider.SaveProgressToFile(TrainProgressEvents))
                     .ContinueWith((x) => MessageExtensions.ShowInfo("Progress saved to file"));
             }
             catch(Exception exc)
@@ -138,12 +111,11 @@ namespace RozpoznawaniePisma
         private void trackBar1_Scroll(object sender, EventArgs e)
         {
         }
-    }
 
- #region Recognize partial
+        #endregion
 
-    public partial class Neural
-    {
+        #region Recognize partial
+
         #region Variables
 
         private const float penSize = 5;
@@ -259,7 +231,7 @@ namespace RozpoznawaniePisma
             //else
             //    recognizeTextBox.Text = $"Nie rozpoznano";
         }
+
+        #endregion
     }
 }
-
-#endregion 
