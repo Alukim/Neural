@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Neural));
             this.tabMenu = new System.Windows.Forms.TabControl();
             this.trainingPage = new System.Windows.Forms.TabPage();
@@ -62,6 +63,7 @@
             this.valueHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
             this.fileBrowser = new System.Windows.Forms.OpenFileDialog();
+            this.trackBarToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.tabMenu.SuspendLayout();
             this.trainingPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
@@ -166,13 +168,14 @@
             // 
             // learningRateRatioTrackBar
             // 
-            this.learningRateRatioTrackBar.Location = new System.Drawing.Point(536, 279);
-            this.learningRateRatioTrackBar.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.learningRateRatioTrackBar.Location = new System.Drawing.Point(357, 279);
+            this.learningRateRatioTrackBar.Maximum = 100;
             this.learningRateRatioTrackBar.Name = "learningRateRatioTrackBar";
-            this.learningRateRatioTrackBar.Size = new System.Drawing.Size(396, 69);
+            this.learningRateRatioTrackBar.Size = new System.Drawing.Size(270, 45);
             this.learningRateRatioTrackBar.TabIndex = 11;
-            this.learningRateRatioTrackBar.TickFrequency = 2;
+            this.learningRateRatioTrackBar.TickFrequency = 5;
             this.learningRateRatioTrackBar.Value = 1;
+            this.learningRateRatioTrackBar.Scroll += new System.EventHandler(this.learningRateRatioTrackBar_Scroll);
             // 
             // learningRateRatio
             // 
@@ -186,13 +189,12 @@
             // 
             // betaRatioTrackBar
             // 
-            this.betaRatioTrackBar.Location = new System.Drawing.Point(536, 163);
-            this.betaRatioTrackBar.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.betaRatioTrackBar.Location = new System.Drawing.Point(357, 178);
+            this.betaRatioTrackBar.Maximum = 20;
             this.betaRatioTrackBar.Name = "betaRatioTrackBar";
-            this.betaRatioTrackBar.Size = new System.Drawing.Size(396, 69);
+            this.betaRatioTrackBar.Size = new System.Drawing.Size(270, 45);
             this.betaRatioTrackBar.TabIndex = 9;
-            this.betaRatioTrackBar.TickFrequency = 2;
-            this.betaRatioTrackBar.Value = 1;
+            this.betaRatioTrackBar.Scroll += new System.EventHandler(this.betaRatioTrackBar_Scroll);
             // 
             // betaRatio
             // 
@@ -210,11 +212,11 @@
             this.iterationTrackBar.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.iterationTrackBar.Maximum = 100;
             this.iterationTrackBar.Name = "iterationTrackBar";
-            this.iterationTrackBar.Size = new System.Drawing.Size(396, 69);
+            this.iterationTrackBar.Size = new System.Drawing.Size(270, 45);
             this.iterationTrackBar.TabIndex = 7;
             this.iterationTrackBar.TickFrequency = 2;
             this.iterationTrackBar.Value = 1;
-            this.iterationTrackBar.Scroll += new System.EventHandler(this.trackBar1_Scroll);
+            this.iterationTrackBar.Scroll += new System.EventHandler(this.iterationTrackBar_Scroll);
             // 
             // PhotoCount
             // 
@@ -450,6 +452,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.NumericUpDown numericUpDown1;
         private System.Windows.Forms.Label maximumNumberOfPhotosLabel;
+        private System.Windows.Forms.ToolTip trackBarToolTip;
     }
 }
 

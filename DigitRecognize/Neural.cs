@@ -11,6 +11,7 @@ using NeuralLibrary;
 using NeuralLibrary.Datas.Training;
 using NeuralLibrary.Events;
 using NeuralLibrary.Recognize;
+using System.Text.RegularExpressions;
 
 namespace RozpoznawaniePisma
 {
@@ -18,9 +19,12 @@ namespace RozpoznawaniePisma
     {
         #region Network
         #region Properties
+        const int betaPrecision = 10;
+        const int learningRatePrecision = 100;
 
-        private double Beta { get; } = 1;
-        private double LearningRate { get; } = 0.15;
+        private double Beta => ((double)betaRatioTrackBar.Value / betaPrecision);
+        private double LearningRate => ((double)learningRateRatioTrackBar.Value / learningRatePrecision);
+
         private int MaximumIterations => iterationTrackBar.Value;
 
         private const int NUMBER_OF_INPUTS = (IMAGE_SIZE * IMAGE_SIZE) + 1;
@@ -91,7 +95,7 @@ namespace RozpoznawaniePisma
 
         private void UpdatePackageStatus(object sender, PackageStatusEventArgs e)
         {
-            if(this.PhotoCount.InvokeRequired)
+            if (this.PhotoCount.InvokeRequired)
                 this.Invoke(new MethodInvoker(delegate () { PhotoCount.Text = e.PhotoNumber.ToString(); }));
             else
                 PhotoCount.Text = e.PhotoNumber.ToString();
@@ -111,7 +115,7 @@ namespace RozpoznawaniePisma
 
         private void UpdateProgressBar(object sender, TrainProgressEventArgs e)
         {
-            
+
         }
 
         private async void trainButton_Click(object sender, EventArgs e)
@@ -137,7 +141,7 @@ namespace RozpoznawaniePisma
 
                 await Task.Run(() => network.TrainNetwork(new TrainingPackage(trainingData, trainingData)));
             }
-            catch(Exception exc)
+            catch (Exception exc)
             {
                 MessageExtensions.ShowError($"Error in preparing and training network\nExc: {exc.Message}");
             }
@@ -146,9 +150,6 @@ namespace RozpoznawaniePisma
         private void readPicture_Click(object sender, EventArgs e)
             => fileBrowser.ShowDialog();
 
-        private void trackBar1_Scroll(object sender, EventArgs e)
-        {
-        }
 
         #endregion
 
@@ -220,7 +221,7 @@ namespace RozpoznawaniePisma
 
         private void RecognizeEnded(object sender, RecognizeEndedEventArgs e)
         {
-            foreach(var outputs in e.OutputInfo.Outputs)
+            foreach (var outputs in e.OutputInfo.Outputs)
             {
                 var item = recogonizeDataView.Items.Add(outputs.Value);
                 item.SubItems.Add(outputs.Output.ToString("#0.000000"));
@@ -238,7 +239,7 @@ namespace RozpoznawaniePisma
 
         private void recognizeButton_Click(object sender, EventArgs e)
         {
-            if(!IsTrained)
+            if (!IsTrained)
             {
                 MessageExtensions.ShowError("First, train your network");
                 return;
@@ -277,6 +278,35 @@ namespace RozpoznawaniePisma
         private void UploadSavedNetwork()
         {
 
+        }
+
+
+
+        private void iterationTrackBar_Scroll(object sender, EventArgs e)
+        {
+            setToolTipValue(iterationTrackBar);
+        }
+
+        private void setToolTipValue(TrackBar trackBar)
+        {
+            trackBarToolTip.SetToolTip(trackBar, trackBar.Value.ToString());
+        }
+
+        private void setToolTipFloatValue(TrackBar trackBar, int precision)
+        {
+            var value = (double)trackBar.Value / precision;
+            trackBarToolTip.SetToolTip(trackBar, value.ToString());
+        }
+
+        private void betaRatioTrackBar_Scroll(object sender, EventArgs e)
+        {
+            setToolTipFloatValue(betaRatioTrackBar, 10);
+        }
+
+        private void learningRateRatioTrackBar_Scroll(object sender, EventArgs e)
+        {
+            setToolTipFloatValue(learningRateRatioTrackBar, 100);
+            //MessageBox.Show(LearningRate.ToString());
         }
     }
 }
