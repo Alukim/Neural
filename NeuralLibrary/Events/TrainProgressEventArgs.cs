@@ -13,6 +13,8 @@ namespace NeuralLibrary.Events
 
         public int Epoch { get; private set; }
 
+        public int PhotoInEpoch { get; private set; }
+
         public double Error { get; private set; }
 
         public double Effectiveness { get; private set; }

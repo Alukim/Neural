@@ -71,6 +71,7 @@
     <Compile Include="Neural.Designer.cs">
       <DependentUpon>Neural.cs</DependentUpon>
     </Compile>
+    <Compile Include="Primitives\TrainingState.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Neural.aa-DJ.resx">

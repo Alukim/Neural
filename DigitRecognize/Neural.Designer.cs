@@ -31,6 +31,10 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Neural));
             this.tabMenu = new System.Windows.Forms.TabControl();
             this.trainingPage = new System.Windows.Forms.TabPage();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
+            this.maximumNumberOfPhotosLabel = new System.Windows.Forms.Label();
             this.PhotoCountLabel = new System.Windows.Forms.Label();
             this.trainingProgressBar = new System.Windows.Forms.ProgressBar();
             this.learningRateRatioTrackBar = new System.Windows.Forms.TrackBar();
@@ -60,6 +64,7 @@
             this.fileBrowser = new System.Windows.Forms.OpenFileDialog();
             this.tabMenu.SuspendLayout();
             this.trainingPage.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.learningRateRatioTrackBar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.betaRatioTrackBar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.iterationTrackBar)).BeginInit();
@@ -71,15 +76,18 @@
             // 
             this.tabMenu.Controls.Add(this.trainingPage);
             this.tabMenu.Controls.Add(this.recognizePage);
-            this.tabMenu.Location = new System.Drawing.Point(2, 2);
-            this.tabMenu.Margin = new System.Windows.Forms.Padding(2);
+            this.tabMenu.Location = new System.Drawing.Point(3, 3);
             this.tabMenu.Name = "tabMenu";
             this.tabMenu.SelectedIndex = 0;
-            this.tabMenu.Size = new System.Drawing.Size(638, 554);
+            this.tabMenu.Size = new System.Drawing.Size(957, 852);
             this.tabMenu.TabIndex = 0;
             // 
             // trainingPage
             // 
+            this.trainingPage.Controls.Add(this.label1);
+            this.trainingPage.Controls.Add(this.label2);
+            this.trainingPage.Controls.Add(this.numericUpDown1);
+            this.trainingPage.Controls.Add(this.maximumNumberOfPhotosLabel);
             this.trainingPage.Controls.Add(this.PhotoCountLabel);
             this.trainingPage.Controls.Add(this.trainingProgressBar);
             this.trainingPage.Controls.Add(this.learningRateRatioTrackBar);
@@ -93,37 +101,75 @@
             this.trainingPage.Controls.Add(this.trainButton);
             this.trainingPage.Controls.Add(this.iterationLabel);
             this.trainingPage.Controls.Add(this.selectPathButton);
-            this.trainingPage.Location = new System.Drawing.Point(4, 22);
+            this.trainingPage.Location = new System.Drawing.Point(4, 29);
             this.trainingPage.Margin = new System.Windows.Forms.Padding(0);
             this.trainingPage.Name = "trainingPage";
-            this.trainingPage.Size = new System.Drawing.Size(630, 528);
+            this.trainingPage.Size = new System.Drawing.Size(949, 819);
             this.trainingPage.TabIndex = 0;
             this.trainingPage.Text = "Training";
             this.trainingPage.UseVisualStyleBackColor = true;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
+            this.label1.Location = new System.Drawing.Point(547, 695);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(169, 29);
+            this.label1.TabIndex = 18;
+            this.label1.Text = "Training State:";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F);
+            this.label2.Location = new System.Drawing.Point(740, 695);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(0, 36);
+            this.label2.TabIndex = 17;
+            // 
+            // numericUpDown1
+            // 
+            this.numericUpDown1.Font = new System.Drawing.Font("Microsoft Sans Serif", 13F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.numericUpDown1.Location = new System.Drawing.Point(659, 405);
+            this.numericUpDown1.Name = "numericUpDown1";
+            this.numericUpDown1.Size = new System.Drawing.Size(160, 37);
+            this.numericUpDown1.TabIndex = 16;
+            // 
+            // maximumNumberOfPhotosLabel
+            // 
+            this.maximumNumberOfPhotosLabel.AutoSize = true;
+            this.maximumNumberOfPhotosLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
+            this.maximumNumberOfPhotosLabel.Location = new System.Drawing.Point(565, 363);
+            this.maximumNumberOfPhotosLabel.Name = "maximumNumberOfPhotosLabel";
+            this.maximumNumberOfPhotosLabel.Size = new System.Drawing.Size(348, 25);
+            this.maximumNumberOfPhotosLabel.TabIndex = 15;
+            this.maximumNumberOfPhotosLabel.Text = "Maximum number of photos for training";
             // 
             // PhotoCountLabel
             // 
             this.PhotoCountLabel.AutoSize = true;
             this.PhotoCountLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
-            this.PhotoCountLabel.Location = new System.Drawing.Point(359, 452);
-            this.PhotoCountLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.PhotoCountLabel.Location = new System.Drawing.Point(547, 637);
             this.PhotoCountLabel.Name = "PhotoCountLabel";
-            this.PhotoCountLabel.Size = new System.Drawing.Size(193, 20);
+            this.PhotoCountLabel.Size = new System.Drawing.Size(289, 29);
             this.PhotoCountLabel.TabIndex = 13;
             this.PhotoCountLabel.Text = "Which photo in the epoch:";
             // 
             // trainingProgressBar
             // 
-            this.trainingProgressBar.Location = new System.Drawing.Point(7, 491);
+            this.trainingProgressBar.Location = new System.Drawing.Point(10, 755);
+            this.trainingProgressBar.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.trainingProgressBar.Name = "trainingProgressBar";
-            this.trainingProgressBar.Size = new System.Drawing.Size(591, 27);
+            this.trainingProgressBar.Size = new System.Drawing.Size(886, 42);
             this.trainingProgressBar.TabIndex = 12;
             // 
             // learningRateRatioTrackBar
             // 
-            this.learningRateRatioTrackBar.Location = new System.Drawing.Point(357, 279);
+            this.learningRateRatioTrackBar.Location = new System.Drawing.Point(536, 279);
+            this.learningRateRatioTrackBar.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.learningRateRatioTrackBar.Name = "learningRateRatioTrackBar";
-            this.learningRateRatioTrackBar.Size = new System.Drawing.Size(264, 45);
+            this.learningRateRatioTrackBar.Size = new System.Drawing.Size(396, 69);
             this.learningRateRatioTrackBar.TabIndex = 11;
             this.learningRateRatioTrackBar.TickFrequency = 2;
             this.learningRateRatioTrackBar.Value = 1;
@@ -132,18 +178,18 @@
             // 
             this.learningRateRatio.AutoSize = true;
             this.learningRateRatio.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
-            this.learningRateRatio.Location = new System.Drawing.Point(434, 258);
-            this.learningRateRatio.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.learningRateRatio.Location = new System.Drawing.Point(651, 247);
             this.learningRateRatio.Name = "learningRateRatio";
-            this.learningRateRatio.Size = new System.Drawing.Size(125, 17);
+            this.learningRateRatio.Size = new System.Drawing.Size(168, 25);
             this.learningRateRatio.TabIndex = 10;
             this.learningRateRatio.Text = "Learning rate ratio";
             // 
             // betaRatioTrackBar
             // 
-            this.betaRatioTrackBar.Location = new System.Drawing.Point(357, 178);
+            this.betaRatioTrackBar.Location = new System.Drawing.Point(536, 163);
+            this.betaRatioTrackBar.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.betaRatioTrackBar.Name = "betaRatioTrackBar";
-            this.betaRatioTrackBar.Size = new System.Drawing.Size(264, 45);
+            this.betaRatioTrackBar.Size = new System.Drawing.Size(396, 69);
             this.betaRatioTrackBar.TabIndex = 9;
             this.betaRatioTrackBar.TickFrequency = 2;
             this.betaRatioTrackBar.Value = 1;
@@ -152,19 +198,19 @@
             // 
             this.betaRatio.AutoSize = true;
             this.betaRatio.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
-            this.betaRatio.Location = new System.Drawing.Point(461, 158);
-            this.betaRatio.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.betaRatio.Location = new System.Drawing.Point(692, 132);
             this.betaRatio.Name = "betaRatio";
-            this.betaRatio.Size = new System.Drawing.Size(69, 17);
+            this.betaRatio.Size = new System.Drawing.Size(94, 25);
             this.betaRatio.TabIndex = 8;
             this.betaRatio.Text = "Beta ratio";
             // 
             // iterationTrackBar
             // 
-            this.iterationTrackBar.Location = new System.Drawing.Point(357, 77);
+            this.iterationTrackBar.Location = new System.Drawing.Point(536, 48);
+            this.iterationTrackBar.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.iterationTrackBar.Maximum = 100;
             this.iterationTrackBar.Name = "iterationTrackBar";
-            this.iterationTrackBar.Size = new System.Drawing.Size(264, 45);
+            this.iterationTrackBar.Size = new System.Drawing.Size(396, 69);
             this.iterationTrackBar.TabIndex = 7;
             this.iterationTrackBar.TickFrequency = 2;
             this.iterationTrackBar.Value = 1;
@@ -174,10 +220,9 @@
             // 
             this.PhotoCount.AutoSize = true;
             this.PhotoCount.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F);
-            this.PhotoCount.Location = new System.Drawing.Point(550, 451);
-            this.PhotoCount.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.PhotoCount.Location = new System.Drawing.Point(834, 636);
             this.PhotoCount.Name = "PhotoCount";
-            this.PhotoCount.Size = new System.Drawing.Size(23, 25);
+            this.PhotoCount.Size = new System.Drawing.Size(32, 36);
             this.PhotoCount.TabIndex = 6;
             this.PhotoCount.Text = "0";
             // 
@@ -185,10 +230,9 @@
             // 
             this.pathLabel.AutoSize = true;
             this.pathLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
-            this.pathLabel.Location = new System.Drawing.Point(5, 13);
-            this.pathLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.pathLabel.Location = new System.Drawing.Point(8, 20);
             this.pathLabel.Name = "pathLabel";
-            this.pathLabel.Size = new System.Drawing.Size(45, 17);
+            this.pathLabel.Size = new System.Drawing.Size(63, 25);
             this.pathLabel.TabIndex = 5;
             this.pathLabel.Text = "Path: ";
             // 
@@ -198,10 +242,9 @@
             this.iterationColumn,
             this.errorColumn,
             this.effectivenessColumn});
-            this.trainingDataView.Location = new System.Drawing.Point(5, 106);
-            this.trainingDataView.Margin = new System.Windows.Forms.Padding(2);
+            this.trainingDataView.Location = new System.Drawing.Point(8, 163);
             this.trainingDataView.Name = "trainingDataView";
-            this.trainingDataView.Size = new System.Drawing.Size(337, 366);
+            this.trainingDataView.Size = new System.Drawing.Size(504, 561);
             this.trainingDataView.TabIndex = 4;
             this.trainingDataView.UseCompatibleStateImageBehavior = false;
             this.trainingDataView.View = System.Windows.Forms.View.Details;
@@ -226,10 +269,9 @@
             this.trainButton.AutoSize = true;
             this.trainButton.Enabled = false;
             this.trainButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F);
-            this.trainButton.Location = new System.Drawing.Point(387, 356);
-            this.trainButton.Margin = new System.Windows.Forms.Padding(2);
+            this.trainButton.Location = new System.Drawing.Point(580, 478);
             this.trainButton.Name = "trainButton";
-            this.trainButton.Size = new System.Drawing.Size(211, 65);
+            this.trainButton.Size = new System.Drawing.Size(316, 100);
             this.trainButton.TabIndex = 3;
             this.trainButton.Text = "Train";
             this.trainButton.UseVisualStyleBackColor = true;
@@ -239,19 +281,17 @@
             // 
             this.iterationLabel.AutoSize = true;
             this.iterationLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
-            this.iterationLabel.Location = new System.Drawing.Point(426, 57);
-            this.iterationLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.iterationLabel.Location = new System.Drawing.Point(639, 18);
             this.iterationLabel.Name = "iterationLabel";
-            this.iterationLabel.Size = new System.Drawing.Size(136, 17);
+            this.iterationLabel.Size = new System.Drawing.Size(185, 25);
             this.iterationLabel.TabIndex = 2;
             this.iterationLabel.Text = "Number of iterations";
             // 
             // selectPathButton
             // 
-            this.selectPathButton.Location = new System.Drawing.Point(7, 42);
-            this.selectPathButton.Margin = new System.Windows.Forms.Padding(2);
+            this.selectPathButton.Location = new System.Drawing.Point(10, 65);
             this.selectPathButton.Name = "selectPathButton";
-            this.selectPathButton.Size = new System.Drawing.Size(264, 50);
+            this.selectPathButton.Size = new System.Drawing.Size(396, 77);
             this.selectPathButton.TabIndex = 0;
             this.selectPathButton.Text = "Select the path to the image folder";
             this.selectPathButton.UseVisualStyleBackColor = true;
@@ -265,30 +305,29 @@
             this.recognizePage.Controls.Add(this.recognizeButton);
             this.recognizePage.Controls.Add(this.pictureBox);
             this.recognizePage.Controls.Add(this.recogonizeDataView);
-            this.recognizePage.Location = new System.Drawing.Point(4, 22);
-            this.recognizePage.Margin = new System.Windows.Forms.Padding(2);
+            this.recognizePage.Location = new System.Drawing.Point(4, 29);
             this.recognizePage.Name = "recognizePage";
-            this.recognizePage.Padding = new System.Windows.Forms.Padding(2);
-            this.recognizePage.Size = new System.Drawing.Size(630, 528);
+            this.recognizePage.Padding = new System.Windows.Forms.Padding(3);
+            this.recognizePage.Size = new System.Drawing.Size(949, 819);
             this.recognizePage.TabIndex = 1;
             this.recognizePage.Text = "Recognize";
             this.recognizePage.UseVisualStyleBackColor = true;
             // 
             // recognizeProgressBar
             // 
-            this.recognizeProgressBar.Location = new System.Drawing.Point(7, 491);
+            this.recognizeProgressBar.Location = new System.Drawing.Point(10, 755);
+            this.recognizeProgressBar.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.recognizeProgressBar.Maximum = 12;
             this.recognizeProgressBar.Name = "recognizeProgressBar";
-            this.recognizeProgressBar.Size = new System.Drawing.Size(614, 32);
+            this.recognizeProgressBar.Size = new System.Drawing.Size(921, 49);
             this.recognizeProgressBar.Step = 1;
             this.recognizeProgressBar.TabIndex = 11;
             // 
             // clearButton
             // 
-            this.clearButton.Location = new System.Drawing.Point(412, 116);
-            this.clearButton.Margin = new System.Windows.Forms.Padding(2);
+            this.clearButton.Location = new System.Drawing.Point(618, 178);
             this.clearButton.Name = "clearButton";
-            this.clearButton.Size = new System.Drawing.Size(70, 24);
+            this.clearButton.Size = new System.Drawing.Size(105, 37);
             this.clearButton.TabIndex = 10;
             this.clearButton.Text = "Clear";
             this.clearButton.UseVisualStyleBackColor = true;
@@ -296,19 +335,17 @@
             // 
             // recognizeTextBox
             // 
-            this.recognizeTextBox.Location = new System.Drawing.Point(219, 234);
-            this.recognizeTextBox.Margin = new System.Windows.Forms.Padding(2);
+            this.recognizeTextBox.Location = new System.Drawing.Point(328, 360);
             this.recognizeTextBox.Name = "recognizeTextBox";
-            this.recognizeTextBox.Size = new System.Drawing.Size(158, 33);
+            this.recognizeTextBox.Size = new System.Drawing.Size(235, 49);
             this.recognizeTextBox.TabIndex = 9;
             this.recognizeTextBox.Text = "";
             // 
             // recognizeButton
             // 
-            this.recognizeButton.Location = new System.Drawing.Point(412, 85);
-            this.recognizeButton.Margin = new System.Windows.Forms.Padding(2);
+            this.recognizeButton.Location = new System.Drawing.Point(618, 131);
             this.recognizeButton.Name = "recognizeButton";
-            this.recognizeButton.Size = new System.Drawing.Size(70, 24);
+            this.recognizeButton.Size = new System.Drawing.Size(105, 37);
             this.recognizeButton.TabIndex = 8;
             this.recognizeButton.Text = "Recognize";
             this.recognizeButton.UseVisualStyleBackColor = true;
@@ -317,9 +354,10 @@
             // pictureBox
             // 
             this.pictureBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pictureBox.Location = new System.Drawing.Point(196, 18);
+            this.pictureBox.Location = new System.Drawing.Point(294, 28);
+            this.pictureBox.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.pictureBox.Name = "pictureBox";
-            this.pictureBox.Size = new System.Drawing.Size(200, 200);
+            this.pictureBox.Size = new System.Drawing.Size(299, 307);
             this.pictureBox.TabIndex = 6;
             this.pictureBox.TabStop = false;
             this.pictureBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox_MouseDown);
@@ -331,10 +369,9 @@
             this.recogonizeDataView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.exitNeuralHeader,
             this.valueHeader});
-            this.recogonizeDataView.Location = new System.Drawing.Point(2, 271);
-            this.recogonizeDataView.Margin = new System.Windows.Forms.Padding(2);
+            this.recogonizeDataView.Location = new System.Drawing.Point(3, 417);
             this.recogonizeDataView.Name = "recogonizeDataView";
-            this.recogonizeDataView.Size = new System.Drawing.Size(628, 207);
+            this.recogonizeDataView.Size = new System.Drawing.Size(940, 316);
             this.recogonizeDataView.TabIndex = 5;
             this.recogonizeDataView.UseCompatibleStateImageBehavior = false;
             this.recogonizeDataView.View = System.Windows.Forms.View.Details;
@@ -355,12 +392,11 @@
             // 
             // Neural
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(639, 557);
+            this.ClientSize = new System.Drawing.Size(958, 857);
             this.Controls.Add(this.tabMenu);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(2);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "Neural";
@@ -369,6 +405,7 @@
             this.tabMenu.ResumeLayout(false);
             this.trainingPage.ResumeLayout(false);
             this.trainingPage.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.learningRateRatioTrackBar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.betaRatioTrackBar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.iterationTrackBar)).EndInit();
@@ -409,6 +446,10 @@
         private System.Windows.Forms.TrackBar betaRatioTrackBar;
         private System.Windows.Forms.Label betaRatio;
         private System.Windows.Forms.ProgressBar recognizeProgressBar;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.NumericUpDown numericUpDown1;
+        private System.Windows.Forms.Label maximumNumberOfPhotosLabel;
     }
 }
 

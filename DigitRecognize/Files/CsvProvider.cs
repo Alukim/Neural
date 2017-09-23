@@ -25,14 +25,14 @@ namespace DigitRecognize.Files
         public string Export(bool includeHeaderLine)
         {
 
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             //Get properties using reflection.
             IList<PropertyInfo> propertyInfos = typeof(T).GetProperties();
 
             if (includeHeaderLine)
             {
                 //add header line.
-                foreach (PropertyInfo propertyInfo in propertyInfos)
+                foreach (var propertyInfo in propertyInfos)
                 {
                     sb.Append(propertyInfo.Name).Append(",");
                 }
@@ -42,9 +42,9 @@ namespace DigitRecognize.Files
             //add value for each property.
             foreach (T obj in Objects)
             {
-                foreach (PropertyInfo propertyInfo in propertyInfos)
+                foreach (var propertyInfo in propertyInfos)
                 {
-                    sb.Append(MakeValueCsvFriendly(propertyInfo.GetValue(obj, null))).Append(",");
+                    sb.Append(CsvHumanizer(propertyInfo.GetValue(obj, null))).Append(",");
                 }
                 sb.Remove(sb.Length - 1, 1).AppendLine();
             }
@@ -54,18 +54,10 @@ namespace DigitRecognize.Files
 
         //export to a file.
         public void ExportToFile(string path)
-        {
-            File.WriteAllText(path, Export());
-        }
-
-        //export as binary data.
-        public byte[] ExportToBytes()
-        {
-            return Encoding.UTF8.GetBytes(Export());
-        }
+            => File.WriteAllText(path, Export());
 
         //get the csv value for field.
-        private string MakeValueCsvFriendly(object value)
+        private string CsvHumanizer(object value)
         {
             if (value == null) return "";
             if (value is Nullable && ((INullable)value).IsNull) return "";

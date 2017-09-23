@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,7 +11,7 @@ namespace DigitRecognize.Files
 {
     public class FilesProvider
     {
-        public async Task<List<TrainingData>> PrepareDataFromFile(string fileName)
+        public async Task<List<TrainingData>> PrepareDataFromFile(string fileName, int maximumNumberOfPhotos)
         {
             var trainingDatas = new List<TrainingData>();
 
@@ -21,9 +20,11 @@ namespace DigitRecognize.Files
 
             using (var streamReader = new StreamReader(fileName))
             {
-                //while (streamReader.Peek() >= 0)
-                for(int i = 0; i < 100; ++i)
+                for(int i = 0; i < maximumNumberOfPhotos; ++i)
                 {
+                    if (streamReader.Peek() < 0)
+                        break;
+
                     var inputsList = new List<double>();
                     var line = await streamReader.ReadLineAsync();
                     var seperatedLine = line.Split(' ');
@@ -42,16 +43,19 @@ namespace DigitRecognize.Files
             return trainingDatas;
         }
 
-        public async Task SaveProgressToFile(int iterations, double learnignRate, double beta, ICollection<TrainProgressEventArgs> TrainProgressEvents)
+        public int GetNumbeOfPhotosFromFile(string fileName)
+            => File.ReadAllLines(fileName).Count();
+
+        public void SaveProgressToFile(int iterations, double learnignRate, double beta, int numberOfPhotos, ICollection<TrainProgressEventArgs> TrainProgressEvents)
         {
-            var fileName = $"{Application.StartupPath}/Progresses/{BuildFileName(iterations, learnignRate, beta)}.csv";
+            var fileName = $"{Application.StartupPath}/Progresses/{BuildFileName(iterations, learnignRate, beta, numberOfPhotos)}.csv";
             File.Create(fileName).Close();
 
             var csvProvider = new CsvProvider<TrainProgressEventArgs>(TrainProgressEvents.ToList());
             csvProvider.ExportToFile(fileName);
         }
 
-        private string BuildFileName(int iterations, double learnignRate, double beta)
-            => $"{iterations.ToString()}_{learnignRate.ToString().Replace('.', ',')}_{beta.ToString().Replace('.', ',')}_{DateTime.Now.ToString("yyyy-MM-dd_HH_mm_ss")}";
+        private string BuildFileName(int iterations, double learnignRate, double beta, int numberOfPhotos)
+            => $"{numberOfPhotos}_{iterations.ToString()}_{learnignRate.ToString().Replace('.', ',')}_{beta.ToString().Replace('.', ',')}_{DateTime.Now.ToString("yyyy-MM-dd_HH_mm_ss")}";
     }
 }

@@ -41,8 +41,8 @@ namespace RozpoznawaniePisma
             network.OnUpdateStatus += new Network.TrainProgressUpdateHandler(SaveTrainProgressEvent);
             network.OnUpdatePackageStatus += new Network.PackageStatusUpdateHandler(UpdatePackageStatus);
             network.OnTrainingEnded += new Network.TrainingEndedHandler(TrainingEnded);
-            this.network.OnRecognizeEnded += new Network.RecognizeEndedHandler(RecognizeEnded);
-            this.network.OnRecognizeStatusUpdated += new Network.RecognizeStatusUpdatedHanler(RecognizeUpdated);
+            network.OnRecognizeEnded += new Network.RecognizeEndedHandler(RecognizeEnded);
+            network.OnRecognizeStatusUpdated += new Network.RecognizeStatusUpdatedHanler(RecognizeUpdated);
         }
 
         private void SaveTrainProgressEvent(object sender, TrainProgressEventArgs e)
@@ -52,6 +52,7 @@ namespace RozpoznawaniePisma
 
         #region TrainView
 
+        private int maximumNumberOfPhotos = 1000;
         public const int IMAGE_SIZE = 28;
         private FilesProvider filesProvider { get; }
 
@@ -105,7 +106,7 @@ namespace RozpoznawaniePisma
 
             IsTrained = true;
 
-            Task.Run(() => filesProvider.SaveProgressToFile(MaximumIterations, LearningRate, Beta, TrainProgressEvents));
+            Task.Run(() => filesProvider.SaveProgressToFile(MaximumIterations, LearningRate, Beta, maximumNumberOfPhotos, TrainProgressEvents));
         }
 
         private void UpdateProgressBar(object sender, TrainProgressEventArgs e)
@@ -120,20 +121,21 @@ namespace RozpoznawaniePisma
             {
                 var files = Directory.GetFiles(folderBrowser.SelectedPath, "*.txt");
                 var trainingData = new List<TrainingData>();
+                var recognizeData = new List<TrainingData>();
+
+                var numberOfPhotosInFile = filesProvider.GetNumbeOfPhotosFromFile(files[0]);
+
+                if (maximumNumberOfPhotos > numberOfPhotosInFile)
+                    maximumNumberOfPhotos = numberOfPhotosInFile;
 
                 InitialNetwork();
 
                 foreach (var file in files)
-                {
-                    trainingData.AddRange(await filesProvider.PrepareDataFromFile(file));
-                }
+                    trainingData.AddRange(await filesProvider.PrepareDataFromFile(file, maximumNumberOfPhotos));
 
                 trainingData.Shuffle();
 
-                await Task.Run(() =>
-                {
-                    network.TrainNetwork(new TrainingPackage(trainingData, trainingData));
-                });
+                await Task.Run(() => network.TrainNetwork(new TrainingPackage(trainingData, trainingData)));
             }
             catch(Exception exc)
             {
