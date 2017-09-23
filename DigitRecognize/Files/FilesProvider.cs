@@ -4,8 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using NeuralLibrary.Datas.Network;
 using NeuralLibrary.Datas.Training;
 using NeuralLibrary.Events;
+using Newtonsoft.Json;
 
 namespace DigitRecognize.Files
 {
@@ -49,7 +51,6 @@ namespace DigitRecognize.Files
         public void SaveProgressToFile(int iterations, double learnignRate, double beta, int numberOfPhotos, ICollection<TrainProgressEventArgs> TrainProgressEvents)
         {
             var fileName = $"{Application.StartupPath}/Progresses/{BuildFileName(iterations, learnignRate, beta, numberOfPhotos)}.csv";
-            File.Create(fileName).Close();
 
             var csvProvider = new CsvProvider<TrainProgressEventArgs>(TrainProgressEvents.ToList());
             csvProvider.ExportToFile(fileName);
@@ -57,5 +58,17 @@ namespace DigitRecognize.Files
 
         private string BuildFileName(int iterations, double learnignRate, double beta, int numberOfPhotos)
             => $"{numberOfPhotos}_{iterations.ToString()}_{learnignRate.ToString().Replace('.', ',')}_{beta.ToString().Replace('.', ',')}_{DateTime.Now.ToString("yyyy-MM-dd_HH_mm_ss")}";
+
+        public void SaveNetwork(NetworkState state)
+        {
+            var json = JsonConvert.SerializeObject(state);
+            File.WriteAllText($"{Application.StartupPath}/SavedNetwork/Network.json", json);
+        }
+
+        public NetworkState GetNetwork()
+        {
+            var json = File.ReadAllText($"{Application.StartupPath}/SavedNetwork/Network.json");
+            return JsonConvert.DeserializeObject<NetworkState>(json);
+        }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using NeuralLibrary.Datas.Network;
 using NeuralLibrary.Datas.OutputLayers;
 using NeuralLibrary.Datas.Training;
 using NeuralLibrary.Events;
@@ -41,7 +42,7 @@ namespace NeuralLibrary
         public delegate void RecognizeStatusUpdatedHanler(object sender, RecognizeStatusUpdatedEventArgs e);
         public event RecognizeStatusUpdatedHanler OnRecognizeStatusUpdated;
 
-        public Network(int numberOfInput, int numberOfHidden, int numberOfOutput, int maximumIteration, double beta, double learningRate)
+        public Network(int numberOfInput, int numberOfHidden, int numberOfOutput, int maximumIteration, double beta, double learningRate, List<string> outputs)
         {
             this.numberOfInput = numberOfInput;
             this.numberOfHidden = numberOfHidden;
@@ -53,8 +54,25 @@ namespace NeuralLibrary
 
             InitializeInputs();
             InitializeHiddens();
-            InitializeOutputs();
+            InitializeOutputs(outputs);
         }
+
+        public Network(NetworkState state)
+        {
+            this.numberOfInput = state.NumberOfInputs;
+            this.numberOfHidden = state.NumberOfHiddens;
+            this.numberOfOutput = state.NumberOfOutputs;
+
+            this.Beta = state.Beta;
+            this.LearningRate = state.LearningRate;
+
+            Inputs = state.Inputs;
+            Hiddens = state.Hiddens;
+            Outputs = state.Outputs;
+        }
+
+        public NetworkState GetNetworkState()
+            => new NetworkState(Inputs, Hiddens, Outputs, numberOfInput, numberOfOutput, numberOfHidden, LearningRate, Beta);
 
         private void InitializeInputs()
         {
@@ -91,13 +109,13 @@ namespace NeuralLibrary
             this.Hiddens[numberOfHidden - 1].Output = 1;
         }
 
-        private void InitializeOutputs()
+        private void InitializeOutputs(List<string> outputs)
         {
             this.Outputs = new OutputLayer[this.numberOfOutput];
 
-            for(int i = 0; i < numberOfOutput; ++i)
+            for(int i = 0; i < outputs.Count(); ++i)
             {
-                Outputs[i].Value = i.ToString();
+                Outputs[i].Value = outputs[i];
             }
         }
 

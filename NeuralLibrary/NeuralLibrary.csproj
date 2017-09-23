@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Datas\Network\NetworkState.cs" />
     <Compile Include="Datas\OutputLayers\OutputLayerOutput.cs" />
     <Compile Include="Datas\OutputLayers\OutputLayerOutputs.cs" />
     <Compile Include="Datas\Training\NeuralTrainingParameters.cs" />

@@ -34,7 +34,7 @@
             this.trainingPage = new System.Windows.Forms.TabPage();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
+            this.maximumPhotosNumeric = new System.Windows.Forms.NumericUpDown();
             this.maximumNumberOfPhotosLabel = new System.Windows.Forms.Label();
             this.PhotoCountLabel = new System.Windows.Forms.Label();
             this.trainingProgressBar = new System.Windows.Forms.ProgressBar();
@@ -66,7 +66,7 @@
             this.trackBarToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.tabMenu.SuspendLayout();
             this.trainingPage.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.maximumPhotosNumeric)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.learningRateRatioTrackBar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.betaRatioTrackBar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.iterationTrackBar)).BeginInit();
@@ -88,7 +88,7 @@
             // 
             this.trainingPage.Controls.Add(this.label1);
             this.trainingPage.Controls.Add(this.label2);
-            this.trainingPage.Controls.Add(this.numericUpDown1);
+            this.trainingPage.Controls.Add(this.maximumPhotosNumeric);
             this.trainingPage.Controls.Add(this.maximumNumberOfPhotosLabel);
             this.trainingPage.Controls.Add(this.PhotoCountLabel);
             this.trainingPage.Controls.Add(this.trainingProgressBar);
@@ -130,13 +130,24 @@
             this.label2.Size = new System.Drawing.Size(0, 36);
             this.label2.TabIndex = 17;
             // 
-            // numericUpDown1
+            // maximumPhotosNumeric
             // 
-            this.numericUpDown1.Font = new System.Drawing.Font("Microsoft Sans Serif", 13F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.numericUpDown1.Location = new System.Drawing.Point(659, 405);
-            this.numericUpDown1.Name = "numericUpDown1";
-            this.numericUpDown1.Size = new System.Drawing.Size(160, 37);
-            this.numericUpDown1.TabIndex = 16;
+            this.maximumPhotosNumeric.Font = new System.Drawing.Font("Microsoft Sans Serif", 13F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.maximumPhotosNumeric.Location = new System.Drawing.Point(659, 405);
+            this.maximumPhotosNumeric.Maximum = new decimal(new int[] {
+            60000,
+            0,
+            0,
+            0});
+            this.maximumPhotosNumeric.Name = "maximumPhotosNumeric";
+            this.maximumPhotosNumeric.Size = new System.Drawing.Size(160, 37);
+            this.maximumPhotosNumeric.TabIndex = 16;
+            this.maximumPhotosNumeric.Value = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.maximumPhotosNumeric.ValueChanged += new System.EventHandler(this.maximumPhotosNumeric_ValueChanged);
             // 
             // maximumNumberOfPhotosLabel
             // 
@@ -168,13 +179,13 @@
             // 
             // learningRateRatioTrackBar
             // 
-            this.learningRateRatioTrackBar.Location = new System.Drawing.Point(357, 279);
+            this.learningRateRatioTrackBar.Location = new System.Drawing.Point(536, 275);
             this.learningRateRatioTrackBar.Maximum = 100;
             this.learningRateRatioTrackBar.Name = "learningRateRatioTrackBar";
-            this.learningRateRatioTrackBar.Size = new System.Drawing.Size(270, 45);
+            this.learningRateRatioTrackBar.Size = new System.Drawing.Size(391, 69);
             this.learningRateRatioTrackBar.TabIndex = 11;
             this.learningRateRatioTrackBar.TickFrequency = 5;
-            this.learningRateRatioTrackBar.Value = 1;
+            this.learningRateRatioTrackBar.Value = 15;
             this.learningRateRatioTrackBar.Scroll += new System.EventHandler(this.learningRateRatioTrackBar_Scroll);
             // 
             // learningRateRatio
@@ -189,11 +200,13 @@
             // 
             // betaRatioTrackBar
             // 
-            this.betaRatioTrackBar.Location = new System.Drawing.Point(357, 178);
+            this.betaRatioTrackBar.Location = new System.Drawing.Point(536, 160);
             this.betaRatioTrackBar.Maximum = 20;
             this.betaRatioTrackBar.Name = "betaRatioTrackBar";
-            this.betaRatioTrackBar.Size = new System.Drawing.Size(270, 45);
+            this.betaRatioTrackBar.Size = new System.Drawing.Size(391, 69);
             this.betaRatioTrackBar.TabIndex = 9;
+            this.betaRatioTrackBar.TickFrequency = 10;
+            this.betaRatioTrackBar.Value = 10;
             this.betaRatioTrackBar.Scroll += new System.EventHandler(this.betaRatioTrackBar_Scroll);
             // 
             // betaRatio
@@ -212,10 +225,10 @@
             this.iterationTrackBar.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.iterationTrackBar.Maximum = 100;
             this.iterationTrackBar.Name = "iterationTrackBar";
-            this.iterationTrackBar.Size = new System.Drawing.Size(270, 45);
+            this.iterationTrackBar.Size = new System.Drawing.Size(391, 69);
             this.iterationTrackBar.TabIndex = 7;
             this.iterationTrackBar.TickFrequency = 2;
-            this.iterationTrackBar.Value = 1;
+            this.iterationTrackBar.Value = 10;
             this.iterationTrackBar.Scroll += new System.EventHandler(this.iterationTrackBar_Scroll);
             // 
             // PhotoCount
@@ -403,11 +416,12 @@
             this.MinimizeBox = false;
             this.Name = "Neural";
             this.Text = "DigitRecognize";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Neural_Closed);
             this.Load += new System.EventHandler(this.Neural_Load);
             this.tabMenu.ResumeLayout(false);
             this.trainingPage.ResumeLayout(false);
             this.trainingPage.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.maximumPhotosNumeric)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.learningRateRatioTrackBar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.betaRatioTrackBar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.iterationTrackBar)).EndInit();
@@ -450,7 +464,7 @@
         private System.Windows.Forms.ProgressBar recognizeProgressBar;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.NumericUpDown numericUpDown1;
+        private System.Windows.Forms.NumericUpDown maximumPhotosNumeric;
         private System.Windows.Forms.Label maximumNumberOfPhotosLabel;
         private System.Windows.Forms.ToolTip trackBarToolTip;
     }

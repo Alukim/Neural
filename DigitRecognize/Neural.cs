@@ -35,18 +35,36 @@ namespace RozpoznawaniePisma
 
         private ICollection<TrainProgressEventArgs> TrainProgressEvents = new List<TrainProgressEventArgs>();
 
+        private List<string> Outputs
+        {
+            get
+            {
+                return new List<string>
+                {
+                    "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
+                };
+            }
+        }
+
         private bool IsTrained = false;
         #endregion
 
         private void InitialNetwork()
         {
-            this.network = new Network(NUMBER_OF_INPUTS, NUMBER_OF_HIDDENS, NUMBER_OF_OUTPUTS, MaximumIterations, Beta, LearningRate);
+            this.network = new Network(NUMBER_OF_INPUTS, NUMBER_OF_HIDDENS, NUMBER_OF_OUTPUTS, MaximumIterations, Beta, LearningRate, Outputs);
             network.OnUpdateStatus += new Network.TrainProgressUpdateHandler(UpdateTrainView);
             network.OnUpdateStatus += new Network.TrainProgressUpdateHandler(SaveTrainProgressEvent);
             network.OnUpdatePackageStatus += new Network.PackageStatusUpdateHandler(UpdatePackageStatus);
             network.OnTrainingEnded += new Network.TrainingEndedHandler(TrainingEnded);
             network.OnRecognizeEnded += new Network.RecognizeEndedHandler(RecognizeEnded);
             network.OnRecognizeStatusUpdated += new Network.RecognizeStatusUpdatedHanler(RecognizeUpdated);
+        }
+
+        private void UploadSavedNetwork()
+        {
+            var savedNetwork = filesProvider.GetNetwork();
+            this.network = new Network(savedNetwork);
+            IsTrained = true;
         }
 
         private void SaveTrainProgressEvent(object sender, TrainProgressEventArgs e)
@@ -103,14 +121,20 @@ namespace RozpoznawaniePisma
 
         private void TrainingEnded(object sender, TrainingEndedEventArgs e)
         {
+            var maximumIt = 0;
+            var lr = 0.0;
+            var beta = 0.0;
             this.Invoke(new MethodInvoker(delegate () {
                 MessageExtensions.ShowInfo("Training of network ended");
                 trainButton.Enabled = true;
+                maximumIt = MaximumIterations;
+                lr = LearningRate;
+                beta = Beta;
             }));
 
             IsTrained = true;
 
-            Task.Run(() => filesProvider.SaveProgressToFile(MaximumIterations, LearningRate, Beta, maximumNumberOfPhotos, TrainProgressEvents));
+            Task.Run(() => filesProvider.SaveProgressToFile(maximumIt, lr, beta, maximumNumberOfPhotos, TrainProgressEvents));
         }
 
         private void UpdateProgressBar(object sender, TrainProgressEventArgs e)
@@ -134,12 +158,16 @@ namespace RozpoznawaniePisma
 
                 InitialNetwork();
 
-                foreach (var file in files)
-                    trainingData.AddRange(await filesProvider.PrepareDataFromFile(file, maximumNumberOfPhotos));
+                var tasks = new Task[]
+                {
+                    Task.Run(async () => trainingData = await GetData(files)),
+                    Task.Run(async () => recognizeData = await GetData(files))
+                };
+                Task.WaitAll(tasks);
 
                 trainingData.Shuffle();
 
-                await Task.Run(() => network.TrainNetwork(new TrainingPackage(trainingData, trainingData)));
+                await Task.Run(() => network.TrainNetwork(new TrainingPackage(trainingData, recognizeData)));
             }
             catch (Exception exc)
             {
@@ -147,9 +175,16 @@ namespace RozpoznawaniePisma
             }
         }
 
+        private async Task<List<TrainingData>> GetData(string[] files)
+        {
+            var trainingData = new List<TrainingData>();
+            foreach (var file in files)
+                trainingData.AddRange(await filesProvider.PrepareDataFromFile(file, maximumNumberOfPhotos));
+            return trainingData;
+        }
+
         private void readPicture_Click(object sender, EventArgs e)
             => fileBrowser.ShowDialog();
-
 
         #endregion
 
@@ -270,17 +305,11 @@ namespace RozpoznawaniePisma
         private void Neural_Load(object sender, EventArgs e)
         {
             Directory.CreateDirectory($"{Application.StartupPath}/Progresses");
+            Directory.CreateDirectory($"{Application.StartupPath}/SavedNetwork");
 
-            if (File.Exists($"{Application.StartupPath}/SavedNetwork/Network.txt"))
+            if (File.Exists($"{Application.StartupPath}/SavedNetwork/Network.json"))
                 UploadSavedNetwork();
         }
-
-        private void UploadSavedNetwork()
-        {
-
-        }
-
-
 
         private void iterationTrackBar_Scroll(object sender, EventArgs e)
         {
@@ -306,7 +335,15 @@ namespace RozpoznawaniePisma
         private void learningRateRatioTrackBar_Scroll(object sender, EventArgs e)
         {
             setToolTipFloatValue(learningRateRatioTrackBar, 100);
-            //MessageBox.Show(LearningRate.ToString());
+        }
+
+        private void maximumPhotosNumeric_ValueChanged(object sender, EventArgs e)
+            => maximumNumberOfPhotos = int.Parse(maximumPhotosNumeric.Value.ToString());
+
+        private void Neural_Closed(object sender, FormClosedEventArgs e)
+        {
+            if (this.network != null)
+                filesProvider.SaveNetwork(network.GetNetworkState());
         }
     }
 }
