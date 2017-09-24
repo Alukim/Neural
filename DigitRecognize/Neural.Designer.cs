@@ -32,6 +32,8 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Neural));
             this.tabMenu = new System.Windows.Forms.TabControl();
             this.trainingPage = new System.Windows.Forms.TabPage();
+            this.label3 = new System.Windows.Forms.Label();
+            this.trainingStateLabel = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.maximumPhotosNumeric = new System.Windows.Forms.NumericUpDown();
@@ -52,6 +54,7 @@
             this.trainButton = new System.Windows.Forms.Button();
             this.iterationLabel = new System.Windows.Forms.Label();
             this.selectPathButton = new System.Windows.Forms.Button();
+            this.progressPercantegeLabel = new System.Windows.Forms.Label();
             this.recognizePage = new System.Windows.Forms.TabPage();
             this.recognizeProgressBar = new System.Windows.Forms.ProgressBar();
             this.clearButton = new System.Windows.Forms.Button();
@@ -86,6 +89,8 @@
             // 
             // trainingPage
             // 
+            this.trainingPage.Controls.Add(this.label3);
+            this.trainingPage.Controls.Add(this.trainingStateLabel);
             this.trainingPage.Controls.Add(this.label1);
             this.trainingPage.Controls.Add(this.label2);
             this.trainingPage.Controls.Add(this.maximumPhotosNumeric);
@@ -103,6 +108,7 @@
             this.trainingPage.Controls.Add(this.trainButton);
             this.trainingPage.Controls.Add(this.iterationLabel);
             this.trainingPage.Controls.Add(this.selectPathButton);
+            this.trainingPage.Controls.Add(this.progressPercantegeLabel);
             this.trainingPage.Location = new System.Drawing.Point(4, 29);
             this.trainingPage.Margin = new System.Windows.Forms.Padding(0);
             this.trainingPage.Name = "trainingPage";
@@ -110,6 +116,22 @@
             this.trainingPage.TabIndex = 0;
             this.trainingPage.Text = "Training";
             this.trainingPage.UseVisualStyleBackColor = true;
+            // 
+            // label3
+            // 
+            this.label3.Location = new System.Drawing.Point(0, 0);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(100, 23);
+            this.label3.TabIndex = 0;
+            // 
+            // trainingStateLabel
+            // 
+            this.trainingStateLabel.AutoSize = true;
+            this.trainingStateLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
+            this.trainingStateLabel.Location = new System.Drawing.Point(722, 695);
+            this.trainingStateLabel.Name = "trainingStateLabel";
+            this.trainingStateLabel.Size = new System.Drawing.Size(0, 25);
+            this.trainingStateLabel.TabIndex = 19;
             // 
             // label1
             // 
@@ -174,7 +196,7 @@
             this.trainingProgressBar.Location = new System.Drawing.Point(10, 755);
             this.trainingProgressBar.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.trainingProgressBar.Name = "trainingProgressBar";
-            this.trainingProgressBar.Size = new System.Drawing.Size(886, 42);
+            this.trainingProgressBar.Size = new System.Drawing.Size(870, 42);
             this.trainingProgressBar.TabIndex = 12;
             // 
             // learningRateRatioTrackBar
@@ -311,6 +333,16 @@
             this.selectPathButton.Text = "Select the path to the image folder";
             this.selectPathButton.UseVisualStyleBackColor = true;
             this.selectPathButton.Click += new System.EventHandler(this.selectPathButton_Click);
+            // 
+            // progressPercantegeLabel
+            // 
+            this.progressPercantegeLabel.AutoSize = true;
+            this.progressPercantegeLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
+            this.progressPercantegeLabel.Location = new System.Drawing.Point(878, 761);
+            this.progressPercantegeLabel.Name = "progressPercantegeLabel";
+            this.progressPercantegeLabel.Size = new System.Drawing.Size(48, 29);
+            this.progressPercantegeLabel.TabIndex = 20;
+            this.progressPercantegeLabel.Text = "0%";
             // 
             // recognizePage
             // 
@@ -467,6 +499,9 @@
         private System.Windows.Forms.NumericUpDown maximumPhotosNumeric;
         private System.Windows.Forms.Label maximumNumberOfPhotosLabel;
         private System.Windows.Forms.ToolTip trackBarToolTip;
+        private System.Windows.Forms.Label trainingStateLabel;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label progressPercantegeLabel;
     }
 }
 

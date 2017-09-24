@@ -1,10 +1,8 @@
-﻿using System;
-
-namespace NeuralLibrary.Events
+﻿namespace NeuralLibrary.Events
 {
-    public class TrainProgressEventArgs : EventArgs
+    public class EpochEndedEventArgs
     {
-        public TrainProgressEventArgs(int epoch, double error, double effectiveness)
+        public EpochEndedEventArgs(int epoch, double error, double effectiveness)
         {
             Epoch = epoch;
             Error = error;
@@ -12,8 +10,6 @@ namespace NeuralLibrary.Events
         }
 
         public int Epoch { get; private set; }
-
-        public int PhotoInEpoch { get; private set; }
 
         public double Error { get; private set; }
 

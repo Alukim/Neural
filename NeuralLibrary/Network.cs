@@ -27,7 +27,7 @@ namespace NeuralLibrary
 
         private Random rnd = new Random();
 
-        public delegate void TrainProgressUpdateHandler(object sender, TrainProgressEventArgs e);
+        public delegate void TrainProgressUpdateHandler(object sender, TrainingProgressEventArgs e);
         public event TrainProgressUpdateHandler OnUpdateStatus;
 
         public delegate void PackageStatusUpdateHandler(object sender, PackageStatusEventArgs e);
@@ -41,6 +41,9 @@ namespace NeuralLibrary
 
         public delegate void RecognizeStatusUpdatedHanler(object sender, RecognizeStatusUpdatedEventArgs e);
         public event RecognizeStatusUpdatedHanler OnRecognizeStatusUpdated;
+
+        public delegate void EpochEndedHandler(object sender, EpochEndedEventArgs e);
+        public event EpochEndedHandler OnEpochEnded;
 
         public Network(int numberOfInput, int numberOfHidden, int numberOfOutput, int maximumIteration, double beta, double learningRate, List<string> outputs)
         {
@@ -124,6 +127,7 @@ namespace NeuralLibrary
             double currentError = 0.0;
             double maximumError = 0.0;
 
+            int currentEpoch = 1;
             int currentIteration = 0;
 
             do
@@ -144,19 +148,21 @@ namespace NeuralLibrary
                     HiddenBackPropagation();
 
                     currentError += GetErrors();
-                    UpdatePackageStatus(currentIteration, photoInEpoch++);
+                    UpdatePackageStatus(currentEpoch, photoInEpoch++);
+
+                    ++currentIteration;
                 }
 
                 currentError /= trainingPackage.TrainingDatas.Count();
-                double effectiveness = TestAndCheckEffectiveness(trainingPackage);
+                double effectiveness = TestAndCheckEffectiveness(trainingPackage, currentEpoch, photoInEpoch);
 
-                UpdateProgress(++currentIteration, currentError, effectiveness);
-            } while (currentError > maximumError && currentIteration < this.MaximumIteration);
+                UpdateEpoch(currentEpoch++, currentError, effectiveness);
+            } while (currentError > maximumError && currentEpoch <= this.MaximumIteration);
 
-            UpdateTrainStatusEnded(currentIteration <= this.MaximumIteration);
+            UpdateTrainStatusEnded(currentEpoch <= this.MaximumIteration);
         }
 
-        private double TestAndCheckEffectiveness(TrainingPackage trainingPackage)
+        private double TestAndCheckEffectiveness(TrainingPackage trainingPackage, int currentEpoch, int photoInEpoch)
         {
             double recognizeDigitsCount = 0.0;
             var datas = trainingPackage.RecognizeTrainigData;
@@ -181,6 +187,8 @@ namespace NeuralLibrary
 
                 if (outputsLog.MaximumOutput.Value == data.Value)
                     recognizeDigitsCount++;
+
+                UpdatePackageStatus(currentEpoch, photoInEpoch++);
             }
 
             return (recognizeDigitsCount / datas.Count()) * 100;
@@ -328,16 +336,28 @@ namespace NeuralLibrary
             return total;
         }
 
-        private void UpdateProgress(int epoch, double error, double effectiveness)
+        private void UpdateEpoch(int epoch, double error, double effectiveness)
         {
             Debug.WriteLine($"Epoch: {epoch} | Error: {error} | Effectiveness: {effectiveness}");
+
+            if (OnEpochEnded == null)
+                return;
+
+            var args = new EpochEndedEventArgs(epoch, error, effectiveness);
+            OnEpochEnded(this, args);
+        }
+
+        private void UpdateProgress(int epoch, int photoInEpoch, int iteration, double error)
+        {
+            Debug.WriteLine($"Epoch: {epoch} | Photo: {photoInEpoch} | Iteration: {iteration} | Error: {error}");
 
             if (OnUpdateStatus == null)
                 return;
 
-            var args = new TrainProgressEventArgs(epoch, error, effectiveness);
-            OnUpdateStatus.Invoke(this, args);
+            var args = new TrainingProgressEventArgs(epoch, photoInEpoch, iteration, error);
+            OnUpdateStatus(this, args);
         }
+
 
         private void UpdatePackageStatus(int epochNumber, int photoNumber)
         {
@@ -358,7 +378,7 @@ namespace NeuralLibrary
                 return;
 
             var args = new TrainingEndedEventArgs(successfullyTrained);
-            OnTrainingEnded.Invoke(this, args);
+            OnTrainingEnded(this, args);
         }
 
         private void RecognizeEnded(OutputLayerOutputs outputInfo)
@@ -369,7 +389,7 @@ namespace NeuralLibrary
                 return;
 
             var args = new RecognizeEndedEventArgs(outputInfo);
-            OnRecognizeEnded.Invoke(this, args);
+            OnRecognizeEnded(this, args);
         }
 
         private void RecognizeStatusUpdated(int step)
@@ -380,7 +400,7 @@ namespace NeuralLibrary
                 return;
 
             var args = new RecognizeStatusUpdatedEventArgs(step);
-            OnRecognizeStatusUpdated.Invoke(this, args);
+            OnRecognizeStatusUpdated(this, args);
         }
     }
 }

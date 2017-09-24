@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using DigitRecognize.Extensions;
 using DigitRecognize.Files;
+using DigitRecognize.Primitives;
 using NeuralLibrary;
 using NeuralLibrary.Datas.Training;
 using NeuralLibrary.Events;
 using NeuralLibrary.Recognize;
-using System.Text.RegularExpressions;
 
 namespace RozpoznawaniePisma
 {
@@ -33,7 +33,7 @@ namespace RozpoznawaniePisma
 
         private Network network;
 
-        private ICollection<TrainProgressEventArgs> TrainProgressEvents = new List<TrainProgressEventArgs>();
+        private ICollection<TrainingProgressEventArgs> TrainProgressEvents = new List<TrainingProgressEventArgs>();
 
         private List<string> Outputs
         {
@@ -52,9 +52,10 @@ namespace RozpoznawaniePisma
         private void InitialNetwork()
         {
             this.network = new Network(NUMBER_OF_INPUTS, NUMBER_OF_HIDDENS, NUMBER_OF_OUTPUTS, MaximumIterations, Beta, LearningRate, Outputs);
-            network.OnUpdateStatus += new Network.TrainProgressUpdateHandler(UpdateTrainView);
+            network.OnEpochEnded += new Network.EpochEndedHandler(UpdateTrainView);
             network.OnUpdateStatus += new Network.TrainProgressUpdateHandler(SaveTrainProgressEvent);
             network.OnUpdatePackageStatus += new Network.PackageStatusUpdateHandler(UpdatePackageStatus);
+            network.OnUpdatePackageStatus += new Network.PackageStatusUpdateHandler(UpdateProgressBar);
             network.OnTrainingEnded += new Network.TrainingEndedHandler(TrainingEnded);
             network.OnRecognizeEnded += new Network.RecognizeEndedHandler(RecognizeEnded);
             network.OnRecognizeStatusUpdated += new Network.RecognizeStatusUpdatedHanler(RecognizeUpdated);
@@ -65,9 +66,10 @@ namespace RozpoznawaniePisma
             var savedNetwork = filesProvider.GetNetwork();
             this.network = new Network(savedNetwork);
             IsTrained = true;
+            ChangeState(TrainingState.NeuralStateImport);
         }
 
-        private void SaveTrainProgressEvent(object sender, TrainProgressEventArgs e)
+        private void SaveTrainProgressEvent(object sender, TrainingProgressEventArgs e)
             => TrainProgressEvents.Add(e);
 
         #endregion
@@ -92,7 +94,7 @@ namespace RozpoznawaniePisma
             trainButton.Enabled = true;
         }
 
-        private void UpdateTrainView(object sender, TrainProgressEventArgs e)
+        private void UpdateTrainView(object sender, EpochEndedEventArgs e)
         {
             if (this.trainingDataView.InvokeRequired)
             {
@@ -125,8 +127,8 @@ namespace RozpoznawaniePisma
             var lr = 0.0;
             var beta = 0.0;
             this.Invoke(new MethodInvoker(delegate () {
-                MessageExtensions.ShowInfo("Training of network ended");
-                trainButton.Enabled = true;
+                ChangeState(TrainingState.EndTraining);
+                ChangeEnabledTrainingForm(true);
                 maximumIt = MaximumIterations;
                 lr = LearningRate;
                 beta = Beta;
@@ -137,14 +139,20 @@ namespace RozpoznawaniePisma
             Task.Run(() => filesProvider.SaveProgressToFile(maximumIt, lr, beta, maximumNumberOfPhotos, TrainProgressEvents));
         }
 
-        private void UpdateProgressBar(object sender, TrainProgressEventArgs e)
+        private void UpdateProgressBar(object sender, PackageStatusEventArgs e)
         {
-
+            this.Invoke(new MethodInvoker(delegate ()
+            {
+                trainingProgressBar.PerformStep();
+                var trainedPhoto = (e.Epoch - 1) * maximumNumberOfPhotos * 20; 
+                progressPercantegeLabel.Text = $"{(((trainedPhoto + e.PhotoNumber) * 5) / (maximumNumberOfPhotos * MaximumIterations)).ToString()}%";
+            }));
         }
 
         private async void trainButton_Click(object sender, EventArgs e)
         {
-            trainButton.Enabled = false;
+            ChangeState(TrainingState.Waiting);
+            ChangeEnabledTrainingForm(false);
             try
             {
                 var files = Directory.GetFiles(folderBrowser.SelectedPath, "*.txt");
@@ -156,8 +164,11 @@ namespace RozpoznawaniePisma
                 if (maximumNumberOfPhotos > numberOfPhotosInFile)
                     maximumNumberOfPhotos = numberOfPhotosInFile;
 
+                SetTrainingProgress();
+
                 InitialNetwork();
 
+                ChangeState(TrainingState.FilesImport);
                 var tasks = new Task[]
                 {
                     Task.Run(async () => trainingData = await GetData(files)),
@@ -165,14 +176,43 @@ namespace RozpoznawaniePisma
                 };
                 Task.WaitAll(tasks);
 
+                ChangeState(TrainingState.ShuffleDatas);
                 trainingData.Shuffle();
 
+                ChangeState(TrainingState.StartTraining);
                 await Task.Run(() => network.TrainNetwork(new TrainingPackage(trainingData, recognizeData)));
             }
             catch (Exception exc)
             {
                 MessageExtensions.ShowError($"Error in preparing and training network\nExc: {exc.Message}");
             }
+        }
+
+        private void ChangeEnabledTrainingForm(bool value)
+        {
+            trainButton.Enabled = value;
+            selectPathButton.Enabled = value;
+            iterationTrackBar.Enabled = value;
+            betaRatioTrackBar.Enabled = value;
+            learningRateRatioTrackBar.Enabled = value;
+            maximumPhotosNumeric.Enabled = value;
+            tabMenu.Enabled = value;
+        }
+
+        private void SetTrainingProgress()
+        {
+            progressPercantegeLabel.Text = "0%";
+            trainingProgressBar.Value = 0;
+            trainingProgressBar.Maximum = MaximumIterations * maximumNumberOfPhotos * 20;
+            trainingProgressBar.Step = 1;
+        }
+
+        private void ClearTrainingView()
+            => trainingDataView.Clear();
+
+        private void ChangeState(TrainingState state)
+        {
+            trainingStateLabel.Text = state.ToString();
         }
 
         private async Task<List<TrainingData>> GetData(string[] files)
@@ -309,6 +349,8 @@ namespace RozpoznawaniePisma
 
             if (File.Exists($"{Application.StartupPath}/SavedNetwork/Network.json"))
                 UploadSavedNetwork();
+            else
+                ChangeState(TrainingState.Waiting);
         }
 
         private void iterationTrackBar_Scroll(object sender, EventArgs e)

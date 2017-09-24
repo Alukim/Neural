@@ -128,5 +128,8 @@
   <ItemGroup>
     <Content Include="Assets\NeuralNetwork.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="RecognizeDatas\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -48,11 +48,11 @@ namespace DigitRecognize.Files
         public int GetNumbeOfPhotosFromFile(string fileName)
             => File.ReadAllLines(fileName).Count();
 
-        public void SaveProgressToFile(int iterations, double learnignRate, double beta, int numberOfPhotos, ICollection<TrainProgressEventArgs> TrainProgressEvents)
+        public void SaveProgressToFile(int iterations, double learnignRate, double beta, int numberOfPhotos, ICollection<TrainingProgressEventArgs> TrainProgressEvents)
         {
             var fileName = $"{Application.StartupPath}/Progresses/{BuildFileName(iterations, learnignRate, beta, numberOfPhotos)}.csv";
 
-            var csvProvider = new CsvProvider<TrainProgressEventArgs>(TrainProgressEvents.ToList());
+            var csvProvider = new CsvProvider<TrainingProgressEventArgs>(TrainProgressEvents.ToList());
             csvProvider.ExportToFile(fileName);
         }
 

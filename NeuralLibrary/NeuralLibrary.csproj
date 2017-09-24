@@ -47,11 +47,13 @@
     <Compile Include="Datas\Training\NeuralTrainingParameters.cs" />
     <Compile Include="Datas\Training\TrainingData.cs" />
     <Compile Include="Datas\Training\TrainingPackage.cs" />
+    <Compile Include="Events\EffectivenesStateUpdatedEventArgs.cs" />
+    <Compile Include="Events\EpochEndedEventArgs.cs" />
     <Compile Include="Events\PackageStatusEventArgs.cs" />
     <Compile Include="Events\RecognizeEndedEventArgs.cs" />
     <Compile Include="Events\RecognizeStatusUpdatedEventArgs.cs" />
     <Compile Include="Events\TrainingEndedEventArgs.cs" />
-    <Compile Include="Events\TrainProgressEventArgs.cs" />
+    <Compile Include="Events\TrainingProgressEventArgs.cs" />
     <Compile Include="Layers\HiddenLayer.cs" />
     <Compile Include="Layers\InputLayer.cs" />
     <Compile Include="Layers\OutputLayer.cs" />
