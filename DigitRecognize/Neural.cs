@@ -196,7 +196,6 @@ namespace RozpoznawaniePisma
             betaRatioTrackBar.Enabled = value;
             learningRateRatioTrackBar.Enabled = value;
             maximumPhotosNumeric.Enabled = value;
-            tabMenu.Enabled = value;
         }
 
         private void SetTrainingProgress()
