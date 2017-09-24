@@ -33,7 +33,7 @@ namespace RozpoznawaniePisma
 
         private Network network;
 
-        private ICollection<TrainingProgressEventArgs> TrainProgressEvents = new List<TrainingProgressEventArgs>();
+        private ICollection<EpochEndedEventArgs> TrainProgressEvents = new List<EpochEndedEventArgs>();
 
         private List<string> Outputs
         {
@@ -53,7 +53,7 @@ namespace RozpoznawaniePisma
         {
             this.network = new Network(NUMBER_OF_INPUTS, NUMBER_OF_HIDDENS, NUMBER_OF_OUTPUTS, MaximumIterations, Beta, LearningRate, Outputs);
             network.OnEpochEnded += new Network.EpochEndedHandler(UpdateTrainView);
-            network.OnUpdateStatus += new Network.TrainProgressUpdateHandler(SaveTrainProgressEvent);
+            network.OnEpochEnded += new Network.EpochEndedHandler(SaveTrainProgressEvent);
             network.OnUpdatePackageStatus += new Network.PackageStatusUpdateHandler(UpdatePackageStatus);
             network.OnUpdatePackageStatus += new Network.PackageStatusUpdateHandler(UpdateProgressBar);
             network.OnTrainingEnded += new Network.TrainingEndedHandler(TrainingEnded);
@@ -69,7 +69,7 @@ namespace RozpoznawaniePisma
             ChangeState(TrainingState.NeuralStateImport);
         }
 
-        private void SaveTrainProgressEvent(object sender, TrainingProgressEventArgs e)
+        private void SaveTrainProgressEvent(object sender, EpochEndedEventArgs e)
             => TrainProgressEvents.Add(e);
 
         #endregion
